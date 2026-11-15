@@ -1,5 +1,7 @@
 //! kubernet-wizard desktop app.
 #![recursion_limit = "512"]
+// Release builds on Windows are GUI apps: no console window behind the UI.
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 // GPUI idioms: `use gpui_kit::*` prelude, builder closures, render helpers on views.
 #![allow(
     clippy::wildcard_imports,

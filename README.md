@@ -35,8 +35,8 @@ Download from [Releases](https://github.com/terdiam/kubernet-wizard/releases/lat
 |---|---|---|
 | macOS (Apple Silicon / Intel) | `kubernet-wizard-macos-<arch>.dmg` | Drag to Applications. Not notarized yet: first launch via right-click → Open. |
 | Windows | `kubernet-wizard-setup-windows-x86_64.exe` | Per-user install, no admin needed; optional desktop icon and `kw` on PATH. |
-| Debian / Ubuntu | `kubernet-wizard_<version>_amd64.deb` | `sudo apt install ./kubernet-wizard_*.deb` |
-| Fedora / RHEL / Rocky / Alma | `kubernet-wizard-<version>-1.x86_64.rpm` | `sudo dnf install ./kubernet-wizard-*.rpm` |
+| Debian 12+ / Ubuntu 22.04+ | `kubernet-wizard_<version>_amd64.deb` | `sudo apt install ./kubernet-wizard_*.deb` |
+| RHEL / Rocky / Alma 9+, Fedora | `kubernet-wizard-<version>-1.x86_64.rpm` | `sudo dnf install ./kubernet-wizard-*.rpm` |
 
 The app updates itself on macOS and Windows. Linux packages are updated by installing the newer package (the app shows when one is available). Raw binaries and `kw` CLI builds are attached too.
 

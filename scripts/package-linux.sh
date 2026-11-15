@@ -24,13 +24,40 @@ for png in "$root_dir"/assets/icon/hicolor/*.png; do
 done
 install -Dm644 "$root_dir/LICENSE" "$tree/usr/share/doc/$name/copyright"
 
+# Debian package names for the shared libraries the binaries link
+# (dlopen'd ones such as Vulkan/Wayland go to Recommends). Computed from
+# ELF NEEDED entries so it also works on non-Debian build hosts.
+deb_depends() {
+  local glibc soname pkg deps=()
+  glibc="$(objdump -T "$@" | grep -o 'GLIBC_[0-9.]*' | sed 's/GLIBC_//' | sort -uV | tail -1)"
+  deps+=("libc6 (>= ${glibc:-2.17})")
+  for soname in $(objdump -p "$@" | awk '/NEEDED/ {print $2}' | sort -u); do
+    case "$soname" in
+      libc.so.6|libm.so.6|libdl.so.2|libpthread.so.0|librt.so.1|ld-linux-*) continue ;;
+      libgcc_s.so.1) pkg=libgcc-s1 ;;
+      libxcb.so.1) pkg=libxcb1 ;;
+      libxkbcommon.so.0) pkg=libxkbcommon0 ;;
+      libxkbcommon-x11.so.0) pkg=libxkbcommon-x11-0 ;;
+      libX11.so.6) pkg=libx11-6 ;;
+      libX11-xcb.so.1) pkg=libx11-xcb1 ;;
+      libfontconfig.so.1) pkg=libfontconfig1 ;;
+      libfreetype.so.6) pkg=libfreetype6 ;;
+      libzstd.so.1) pkg=libzstd1 ;;
+      libasound.so.2) pkg="libasound2 | libasound2t64" ;;
+      libssl.so.3|libcrypto.so.3) pkg="libssl3 | libssl3t64" ;;
+      libwayland-client.so.0) pkg=libwayland-client0 ;;
+      *) echo "package-linux.sh: no Debian package mapping for $soname" >&2; exit 1 ;;
+    esac
+    deps+=("$pkg")
+  done
+  printf '%s\n' "${deps[@]}" | awk '!seen[$0]++' | paste -sd, - | sed 's/,/, /g'
+}
+
 # ---------------------------------------------------------------- .deb
 if command -v dpkg-deb >/dev/null; then
   deb="$work/deb"
   cp -a "$tree" "$deb"
-  # Shared-library dependencies of the binaries (dlopen'd ones go to Recommends).
-  depends="$(cd "$work" && mkdir -p debian && printf 'Source: %s\n\nPackage: %s\nArchitecture: any\n' "$name" "$name" > debian/control \
-    && dpkg-shlibdeps -O --ignore-missing-info "$deb/usr/bin/$name" "$deb/usr/bin/kw" 2>/dev/null | sed -n 's/^shlibs:Depends=//p')"
+  depends="$(deb_depends "$deb/usr/bin/$name" "$deb/usr/bin/kw")"
   arch="$(dpkg --print-architecture)"
   mkdir -p "$deb/DEBIAN"
   cat > "$deb/DEBIAN/control" <<EOF
@@ -40,7 +67,7 @@ Section: admin
 Priority: optional
 Architecture: $arch
 Maintainer: kubernet-wizard maintainers <noreply@github.com>
-Depends: ${depends:-libc6}
+Depends: $depends
 Recommends: libvulkan1, libwayland-client0, libxkbcommon-x11-0, ansible, openssh-client
 Suggests: opentofu, kubectl, helm
 Homepage: https://github.com/terdiam/kubernet-wizard
