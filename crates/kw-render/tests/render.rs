@@ -68,3 +68,42 @@ fn snapshot_gitops_prod() {
 fn snapshot_tofu_hetzner() {
     insta::assert_snapshot!(file(Preset::CloudHetzner, "tofu/hetzner/main.tf"));
 }
+
+fn cloud_spec(provider: kw_core::CloudProvider, cloud_lb: bool) -> kw_core::ClusterSpec {
+    use kw_core::{EndpointMode, Target};
+    let mut s = Preset::CloudHetzner.build();
+    s.target = Target::Cloud { provider, provisioning: provider.tofu_defaults().provisioning() };
+    if !cloud_lb {
+        s.endpoint.mode = EndpointMode::KubeVip;
+        s.endpoint.vip = Some("10.0.1.250".parse().unwrap());
+    }
+    s
+}
+
+#[test]
+fn every_provider_renders_tofu() {
+    for &p in kw_core::CloudProvider::ALL {
+        assert!(kw_render::has_tofu_template(p), "{p:?}");
+        for lb in [true, false] {
+            if lb && !p.has_cloud_lb() {
+                continue;
+            }
+            let files = render_spec(&cloud_spec(p, lb)).unwrap();
+            let main = format!("tofu/{}/main.tf", p.id());
+            let tf = files.iter().find(|f| f.path == main).unwrap_or_else(|| panic!("{main} missing"));
+            let text = tf.text();
+            assert!(!text.contains("{{") && !text.contains("{%"), "{p:?}: unrendered template syntax");
+            assert!(text.contains("local_file\" \"inventory\""), "{p:?}");
+            assert_eq!(text.contains("kw_endpoint_host"), lb, "{p:?} lb={lb}");
+            assert!(files.iter().filter(|f| f.path.starts_with("tofu/")).all(|f| f.path.starts_with(&format!("tofu/{}/", p.id()))));
+        }
+    }
+}
+
+#[test]
+fn rke2_lb_forwards_supervisor_port() {
+    let mut s = cloud_spec(kw_core::CloudProvider::Aws, true);
+    s.distro.id = kw_core::DistroId::Rke2;
+    let tf = render_spec(&s).unwrap().into_iter().find(|f| f.path == "tofu/aws/main.tf").unwrap();
+    assert!(tf.text().contains("lb_ports = [6443, 9345]"));
+}

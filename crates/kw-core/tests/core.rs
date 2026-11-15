@@ -125,3 +125,25 @@ fn footprint_minimal_is_small() {
     let (cp, _) = resources::estimate(&Preset::DevLocal.build());
     assert!(cp.mem_mib < 1000, "{cp:?}");
 }
+
+#[test]
+fn proxmox_rules() {
+    use kw_core::{CloudProvider, EndpointMode, Field, Provisioning, Target, presets::Preset};
+    let mut s = Preset::CloudHetzner.build();
+    s.target = Target::Cloud { provider: CloudProvider::Proxmox, provisioning: CloudProvider::Proxmox.tofu_defaults().provisioning() };
+    let r = validate(&s, &CAPS);
+    assert!(r.issues.iter().any(|i| i.field == Field::EndpointMode), "cloud LB rejected on Proxmox");
+    assert!(!r.issues.iter().any(|i| i.field == Field::Provisioning), "defaults are valid");
+
+    s.target = Target::Cloud {
+        provider: CloudProvider::Proxmox,
+        provisioning: Provisioning::Tofu { region: "pve".into(), cp_size: "4gb".into(), worker_size: "2x4096".into(), image: "ubuntu".into() },
+    };
+    let r = validate(&s, &CAPS);
+    assert_eq!(r.issues.iter().filter(|i| i.field == Field::Provisioning).count(), 2);
+
+    s.target = Target::Cloud { provider: CloudProvider::Aws, provisioning: Provisioning::ExistingVms };
+    s.endpoint.mode = EndpointMode::CloudLb;
+    s.endpoint.dns_name = None;
+    assert!(validate(&s, &CAPS).issues.iter().any(|i| i.field == Field::EndpointMode), "existing VMs need LB address");
+}

@@ -63,6 +63,9 @@ struct TofuCtx<'a> {
     cp_size: &'a str,
     worker_size: &'a str,
     image: &'a str,
+    /// Ports forwarded by the cloud API load balancer.
+    lb_ports: SmallVec<[u16; 2]>,
+    hint: &'static str,
 }
 
 #[derive(Serialize)]
@@ -187,7 +190,14 @@ fn build_ctx(spec: &ClusterSpec, distro: DistroVars) -> (Ctx<'_>, Selection) {
 
     let (tofu, tofu_provider) = match &spec.target {
         Target::Cloud { provider, provisioning: Provisioning::Tofu { region, cp_size, worker_size, image } } => (
-            Some(TofuCtx { region, cp_size, worker_size, image }),
+            Some(TofuCtx {
+                region,
+                cp_size,
+                worker_size,
+                image,
+                lb_ports: lb_ports(spec),
+                hint: provider.tofu_hint(),
+            }),
             Some(provider.id()),
         ),
         _ => (None, None),
@@ -341,6 +351,16 @@ pub fn write_all(files: &[RenderedFile], out: &Path, keep_inventory: bool) -> Re
 #[inline]
 pub fn render_spec(spec: &ClusterSpec) -> Result<Vec<RenderedFile>, RenderError> {
     render(spec, &kw_distro::get(spec.distro.id))
+}
+
+/// API port plus the RKE2 supervisor port (servers join through it).
+fn lb_ports(spec: &ClusterSpec) -> SmallVec<[u16; 2]> {
+    let mut ports = SmallVec::new();
+    ports.push(spec.endpoint.port);
+    if spec.distro.id == kw_core::DistroId::Rke2 {
+        ports.push(9345);
+    }
+    ports
 }
 
 /// Whether an OpenTofu template exists for a provider.

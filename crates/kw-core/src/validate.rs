@@ -9,7 +9,7 @@ use ipnet::IpNet;
 use crate::caps::Capabilities;
 use crate::compat;
 use crate::spec::{
-    ClusterSpec, EndpointMode, GitOpsTool, NodeRole, Provisioning, ServiceLbKind, Target,
+    CloudProvider, ClusterSpec, EndpointMode, GitOpsTool, NodeRole, Provisioning, ServiceLbKind, Target,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -177,11 +177,35 @@ fn check_name(spec: &ClusterSpec, out: &mut Vec<Issue>) {
 }
 
 fn check_target(spec: &ClusterSpec, out: &mut Vec<Issue>) {
-    if let Target::Cloud { provisioning: Provisioning::Tofu { region, .. }, .. } = &spec.target
-        && region.trim().is_empty()
-    {
-        out.push(Issue::error(Field::Provisioning, "Region is required for OpenTofu provisioning"));
+    let Target::Cloud { provider, provisioning } = &spec.target else { return };
+    match provisioning {
+        Provisioning::Tofu { region, cp_size, worker_size, image } => {
+            if [region, cp_size, worker_size, image].iter().any(|v| v.trim().is_empty()) {
+                out.push(Issue::error(Field::Provisioning, "Region, sizes and image are required for OpenTofu provisioning"));
+            }
+            if *provider == CloudProvider::Proxmox {
+                if ![cp_size, worker_size].iter().all(|s| is_cores_x_mib(s)) {
+                    out.push(Issue::error(Field::Provisioning, "Proxmox size must be <cores>x<MiB>, e.g. 2x4096"));
+                }
+                if image.trim().parse::<u32>().is_err() {
+                    out.push(Issue::error(Field::Provisioning, "Proxmox image must be the VM id of a cloud-init template, e.g. 9000"));
+                }
+            }
+        }
+        Provisioning::ExistingVms => {
+            if spec.endpoint.mode == EndpointMode::CloudLb && spec.endpoint.dns_name.as_deref().is_none_or(str::is_empty) {
+                out.push(Issue::error(
+                    Field::EndpointMode,
+                    "Enter the DNS name or IP of your load balancer; it is only created automatically with OpenTofu",
+                ));
+            }
+        }
     }
+}
+
+/// `2x4096` style Proxmox size.
+fn is_cores_x_mib(s: &str) -> bool {
+    s.trim().split_once('x').is_some_and(|(c, m)| c.parse::<u16>().is_ok_and(|c| c > 0) && m.parse::<u32>().is_ok_and(|m| m >= 512))
 }
 
 fn check_compat(spec: &ClusterSpec, caps: &Capabilities, out: &mut Vec<Issue>) {

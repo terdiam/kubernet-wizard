@@ -66,6 +66,12 @@ const INPUTS: [In; 18] = [
 ];
 
 impl In {
+    /// OpenTofu provisioning inputs.
+    #[inline]
+    pub(super) const fn is_tofu(self) -> bool {
+        matches!(self, Self::Region | Self::CpSize | Self::WorkerSize | Self::Image)
+    }
+
     const fn field(self) -> Option<Field> {
         Some(match self {
             Self::Name => Field::Name,
@@ -372,13 +378,20 @@ impl Wizard {
         cx.notify();
     }
 
-    /// Pushes spec values into all inputs (after preset / load / undo).
-    fn sync_inputs(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    /// Pushes spec values into the selected inputs.
+    pub(super) fn sync_inputs_where(&mut self, keep: impl Fn(In) -> bool, window: &mut Window, cx: &mut Context<Self>) {
         self.syncing = true;
-        for (i, input) in self.inputs.iter().enumerate() {
-            let v: SharedString = value_of(&self.spec, INPUTS[i]).into_owned().into();
+        for (input, &key) in self.inputs.iter().zip(INPUTS.iter()).filter(|&(_, &k)| keep(k)) {
+            let v: SharedString = value_of(&self.spec, key).into_owned().into();
             input.update(cx, |s, cx| s.set_value(v, window, cx));
         }
+        self.syncing = false;
+    }
+
+    /// Pushes spec values into all inputs (after preset / load / undo).
+    fn sync_inputs(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.sync_inputs_where(|_| true, window, cx);
+        self.syncing = true;
         let text: SharedString = format_nodes(&self.spec.topology.nodes).into();
         self.nodes.update(cx, |s, cx| s.set_value(text, window, cx));
         self.syncing = false;

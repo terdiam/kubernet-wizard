@@ -109,7 +109,13 @@ impl Wizard {
                 .disabled(why.is_some())
                 .when(opt == selected, |b| b.primary())
                 .when(opt != selected, |b| b.outline())
-                .on_click(cx.listener(move |this, _, _, cx| this.edit(|s| on_pick(s, opt), cx)));
+                .on_click(cx.listener(move |this, _, window, cx| {
+                    let before = this.spec.target.clone();
+                    this.edit(|s| on_pick(s, opt), cx);
+                    if this.spec.target != before {
+                        this.sync_inputs_where(|i| i.is_tofu(), window, cx);
+                    }
+                }));
             if let Some(why) = why {
                 b = b.tooltip(why);
             } else if is_rec {

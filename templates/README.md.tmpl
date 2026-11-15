@@ -14,6 +14,12 @@ Distro: **{{ spec.distro.id }} {{ spec.distro.version }}** · Control planes: {{
 | `gitops/{{ gitops_path }}/` | Push to `{{ spec.gitops.repo_url }}` ({{ spec.gitops.branch }}). |
 {%- endif %}
 
+{% if tofu %}
+## OpenTofu
+{{ tofu.hint }}
+Override `admin_cidrs` (e.g. `-var 'admin_cidrs=["203.0.113.0/24"]'`) to restrict SSH and API access.
+
+{% endif -%}
 ## Run manually
 ```bash
 {%- if tofu %}

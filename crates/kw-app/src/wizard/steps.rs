@@ -39,13 +39,15 @@ enum ProvKind {
     Existing,
 }
 
-fn default_tofu() -> Provisioning {
-    Provisioning::Tofu {
-        region: "fsn1".to_owned(),
-        cp_size: "cpx21".to_owned(),
-        worker_size: "cpx31".to_owned(),
-        image: "ubuntu-24.04".to_owned(),
-    }
+#[inline]
+fn ep_needs_dns(spec: &kw_core::ClusterSpec) -> bool {
+    spec.endpoint.mode == EndpointMode::CloudLb
+        && matches!(spec.target, Target::Cloud { provisioning: Provisioning::ExistingVms, .. })
+}
+
+#[inline]
+fn default_tofu(provider: CloudProvider) -> Provisioning {
+    provider.tofu_defaults().provisioning()
 }
 
 impl Wizard {
@@ -140,7 +142,7 @@ impl Wizard {
                 |s, k| {
                     s.target = match k {
                         TargetKind::Baremetal => Target::Baremetal,
-                        TargetKind::Cloud => Target::Cloud { provider: CloudProvider::Hetzner, provisioning: default_tofu() },
+                        TargetKind::Cloud => Target::Cloud { provider: CloudProvider::Hetzner, provisioning: default_tofu(CloudProvider::Hetzner) },
                     };
                 },
                 cx,
@@ -165,8 +167,11 @@ impl Wizard {
                         None,
                         None,
                         |s, p| {
-                            if let Target::Cloud { provider, .. } = &mut s.target {
+                            if let Target::Cloud { provider, provisioning } = &mut s.target {
                                 *provider = p;
+                                if matches!(provisioning, Provisioning::Tofu { .. }) {
+                                    *provisioning = default_tofu(p);
+                                }
                             }
                         },
                         cx,
@@ -190,8 +195,8 @@ impl Wizard {
                         None,
                         None,
                         |s, p| {
-                            if let Target::Cloud { provisioning, .. } = &mut s.target {
-                                *provisioning = if p == ProvKind::Tofu { default_tofu() } else { Provisioning::ExistingVms };
+                            if let Target::Cloud { provider, provisioning } = &mut s.target {
+                                *provisioning = if p == ProvKind::Tofu { default_tofu(*provider) } else { Provisioning::ExistingVms };
                             }
                         },
                         cx,
@@ -206,7 +211,8 @@ impl Wizard {
                         .child(div().flex_1().child(self.field("f-cps", "CP size", None, None, self.input(In::CpSize), cx)))
                         .child(div().flex_1().child(self.field("f-ws", "Worker size", None, None, self.input(In::WorkerSize), cx)))
                         .child(div().flex_1().child(self.field("f-img", "Image", None, None, self.input(In::Image), cx))),
-                );
+                )
+                .child(div().text_xs().text_color(cx.theme().muted_foreground).child(provider.tofu_hint()));
             }
         }
         col
@@ -423,7 +429,9 @@ impl Wizard {
     }
 
     fn step_endpoint(&self, cx: &mut Context<Self>) -> Div {
-        let cloud = self.spec.is_cloud();
+        let cloud = self.spec.has_cloud_lb();
+        // Existing VMs: the user's own LB address must be entered.
+        let needs_dns = ep_needs_dns(&self.spec);
         let ep = &self.spec.endpoint;
         let lb = &self.spec.service_lb;
         let adv = Self::advanced(cx);
@@ -457,7 +465,10 @@ impl Wizard {
                         .child(div().w(px(160.)).child(self.field("f-iface", "Interface", Some(Field::Interface), None, self.input(In::Iface), cx))),
                 )
             })
-            .when(adv, |d| d.child(self.field("f-dns", "DNS name (optional, added to certificate)", None, None, self.input(In::DnsName), cx)))
+            .when(adv || needs_dns, |d| {
+                let label = if needs_dns { "Load balancer DNS name or IP" } else { "DNS name (optional, added to certificate)" };
+                d.child(self.field("f-dns", label, None, None, self.input(In::DnsName), cx))
+            })
             .child(self.field(
                 "f-slb",
                 "Service LoadBalancer",

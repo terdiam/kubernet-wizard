@@ -56,6 +56,12 @@ impl ClusterSpec {
         matches!(self.target, Target::Cloud { .. })
     }
 
+    /// Cloud target whose provider has managed load balancers.
+    #[inline]
+    pub fn has_cloud_lb(&self) -> bool {
+        matches!(self.target, Target::Cloud { provider, .. } if provider.has_cloud_lb())
+    }
+
     /// Nodes filtered by role, borrowed.
     pub fn nodes_with_role(&self, role: NodeRole) -> impl Iterator<Item = &Node> {
         self.topology.nodes.iter().filter(move |n| n.role == role)
@@ -108,6 +114,60 @@ impl CloudProvider {
             Self::DigitalOcean => "digitalocean",
             Self::Hetzner => "hetzner",
             Self::Proxmox => "proxmox",
+        }
+    }
+
+    /// Whether the provider offers a managed load balancer (cloud LB / CCM).
+    #[inline]
+    pub const fn has_cloud_lb(self) -> bool {
+        !matches!(self, Self::Proxmox)
+    }
+
+    /// Sensible OpenTofu inputs for Ubuntu 24.04 on this provider.
+    pub const fn tofu_defaults(self) -> TofuDefaults {
+        let (region, cp_size, worker_size, image) = match self {
+            Self::Aws => ("eu-central-1", "t3.medium", "t3.large", "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"),
+            Self::Gcp => ("europe-west4-a", "e2-standard-2", "e2-standard-4", "ubuntu-os-cloud/ubuntu-2404-lts-amd64"),
+            Self::Azure => ("westeurope", "Standard_B2s", "Standard_D2s_v5", "Canonical:ubuntu-24_04-lts:server:latest"),
+            Self::Linode => ("eu-central", "g6-standard-2", "g6-standard-4", "linode/ubuntu24.04"),
+            Self::DigitalOcean => ("fra1", "s-2vcpu-4gb", "s-4vcpu-8gb", "ubuntu-24-04-x64"),
+            Self::Hetzner => ("fsn1", "cpx21", "cpx31", "ubuntu-24.04"),
+            Self::Proxmox => ("pve", "2x4096", "4x8192", "9000"),
+        };
+        TofuDefaults { region, cp_size, worker_size, image }
+    }
+
+    /// How OpenTofu authenticates and what the inputs mean.
+    pub const fn tofu_hint(self) -> &'static str {
+        match self {
+            Self::Aws => "Credentials: AWS_PROFILE or AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY. Image: AMI id or AMI name pattern.",
+            Self::Gcp => "Credentials: `gcloud auth application-default login` + TF_VAR_project=<project-id>. Region field is a zone (e.g. europe-west4-a).",
+            Self::Azure => "Credentials: `az login` + ARM_SUBSCRIPTION_ID. Image: publisher:offer:sku:version.",
+            Self::Linode => "Credentials: LINODE_TOKEN.",
+            Self::DigitalOcean => "Credentials: DIGITALOCEAN_TOKEN.",
+            Self::Hetzner => "Credentials: HCLOUD_TOKEN.",
+            Self::Proxmox => "Credentials: PROXMOX_VE_ENDPOINT + PROXMOX_VE_API_TOKEN. Region = PVE node, size = <cores>x<MiB> (e.g. 2x4096), image = VM id of a cloud-init template.",
+        }
+    }
+}
+
+/// Default OpenTofu inputs for a provider.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TofuDefaults {
+    pub region: &'static str,
+    pub cp_size: &'static str,
+    pub worker_size: &'static str,
+    pub image: &'static str,
+}
+
+impl TofuDefaults {
+    /// Owned provisioning block.
+    pub fn provisioning(self) -> Provisioning {
+        Provisioning::Tofu {
+            region: self.region.to_owned(),
+            cp_size: self.cp_size.to_owned(),
+            worker_size: self.worker_size.to_owned(),
+            image: self.image.to_owned(),
         }
     }
 }

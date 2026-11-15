@@ -17,7 +17,8 @@
 
 ## OpenTofu gagal
 
-- Token provider belum diset (mis. `TF_VAR_hcloud_token`).
+- Kredensial provider belum diset di environment (mis. `HCLOUD_TOKEN`, `AWS_PROFILE`). Lihat tabel di **Getting started → Cloud**.
+- Aplikasi yang dibuka dari Finder/menu tidak membaca `~/.zshrc`; jalankan dari terminal atau set variabel di sistem.
 - Jalankan ulang dari langkah Deploy → **Coba lagi**.
 
 ## Log

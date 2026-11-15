@@ -28,15 +28,15 @@ pub fn kube_proxy(caps: &Capabilities, spec_cni: Cni, mode: KubeProxyMode) -> Re
 }
 
 #[inline]
-pub fn endpoint(is_cloud: bool, mode: EndpointMode) -> Reason {
-    (mode == EndpointMode::CloudLb && !is_cloud)
-        .then_some("Cloud load balancer is only available for cloud targets")
+pub fn endpoint(cloud_lb: bool, mode: EndpointMode) -> Reason {
+    (mode == EndpointMode::CloudLb && !cloud_lb)
+        .then_some("Cloud load balancer needs a cloud provider with managed LBs (not baremetal or Proxmox)")
 }
 
 #[inline]
-pub fn service_lb(is_cloud: bool, kind: ServiceLbKind) -> Reason {
-    (kind == ServiceLbKind::CloudCcm && !is_cloud)
-        .then_some("Cloud controller manager is only available for cloud targets")
+pub fn service_lb(cloud_lb: bool, kind: ServiceLbKind) -> Reason {
+    (kind == ServiceLbKind::CloudCcm && !cloud_lb)
+        .then_some("Cloud controller manager needs a cloud provider with managed LBs (not baremetal or Proxmox)")
 }
 
 #[inline]
@@ -48,7 +48,7 @@ pub fn ingress(spec_cni: Cni, ingress: Ingress) -> Reason {
 /// Convenience: check whole spec selections (used by validator).
 pub(crate) fn spec_reasons(spec: &ClusterSpec, caps: &Capabilities) -> [(crate::Field, Reason); 7] {
     use crate::Field;
-    let cloud = spec.is_cloud();
+    let cloud = spec.has_cloud_lb();
     let net = &spec.network;
     [
         (Field::Cni, cni(caps, net.cni)),

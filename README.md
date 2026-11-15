@@ -5,7 +5,7 @@ It renders an OpenTofu + Ansible + GitOps project from a single `cluster.yaml` a
 
 ## Features
 
-- Targets: baremetal / existing VMs, or cloud with OpenTofu provisioning (Hetzner template today; AWS, GCP, Azure, DigitalOcean, Linode, Proxmox planned).
+- Targets: baremetal / existing VMs, or cloud with OpenTofu provisioning (AWS, GCP, Azure, Akamai/Linode, DigitalOcean, Hetzner, Proxmox VE) with firewall and optional cloud API load balancer.
 - Distros: kubeadm, k3s, RKE2 (ready); k0s, MicroK8s, Charmed, KubeSphere, Deckhouse, KFD, Typhoon, MetalK8s, KubeCube (planned, plugin registry).
 - Single control plane built HA-ready (stable VIP/LB endpoint + etcd), upgradable to 3/5 CPs in place.
 - Endpoint: kube-vip, keepalived + HAProxy, or cloud LB. Service LB: MetalLB, kube-vip, cloud CCM.
