@@ -46,6 +46,24 @@ cargo test --workspace
 cargo sweep --time 7   # prune old build artefacts
 ```
 
+## Releases & auto-update
+
+The app checks `latest.json` on GitHub Releases (stable) or the rolling `beta` release.
+Every artifact is verified with SHA-256 and a minisign signature before install; builds
+without an embedded key refuse to install updates.
+
+One-time setup (keep the secret key private):
+
+```bash
+minisign -G -W -p kw-update.pub -s kw-update.key
+gh variable set KW_UPDATE_PUBKEY --body "$(tail -1 kw-update.pub)"
+gh secret set MINISIGN_SECRET_KEY < kw-update.key
+```
+
+Release: bump `version` in `Cargo.toml`, then push a tag (`v0.2.0`, or `v0.2.0-beta.1` for beta).
+`.github/workflows/release.yml` builds macOS (.app), Linux and Windows, signs artifacts and
+`release/catalog.json` (tested distro versions), and publishes `latest.json`.
+
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).

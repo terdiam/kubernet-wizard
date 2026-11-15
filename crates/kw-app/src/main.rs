@@ -15,15 +15,34 @@ mod help;
 mod i18n;
 mod onboarding;
 mod settings;
+mod update;
 mod wizard;
 
 use gpui_kit::component::Theme;
 use gpui_kit::*;
 
 fn main() {
+    // Rollback guard must run before any UI work.
+    let version = kw_update::current_version().to_string();
+    let startup = kw_update::on_startup(&settings::state_dir(), &version);
+    if let kw_update::StartupOutcome::RolledBack { relaunch } = &startup {
+        if let Err(e) = kw_update::relaunch(relaunch) {
+            eprintln!("kubernet-wizard: rollback relaunch failed: {e}");
+        }
+        return;
+    }
+    update::install_cached_catalog();
+    let prefs = settings::load();
+    let startup_notice = match startup {
+        kw_update::StartupOutcome::JustUpdated { version } => {
+            Some(format!("{} v{version}", i18n::t(prefs.lang, i18n::K::UpdateInstalled)).into())
+        }
+        _ => None,
+    };
+
     gpui_kit::application().with_assets(gpui_kit::assets::Assets).run(|cx| {
         gpui_kit::init(cx);
-        cx.set_global(settings::Ui { prefs: settings::load(), tour: None });
+        cx.set_global(settings::Ui { prefs, tour: None, startup_notice });
 
         let options = WindowOptions {
             window_bounds: Some(WindowBounds::centered(size(px(1280.), px(820.)), cx)),

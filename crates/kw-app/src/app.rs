@@ -16,9 +16,11 @@ use crate::settings::{self, Ui};
 use crate::wizard::{Wizard, WizardEvent};
 
 pub struct KwApp {
+    pub(crate) update: crate::update::UpdateState,
+    pub(crate) pending_notice: Option<SharedString>,
     screen: Screen,
     welcome: bool,
-    wizard: Entity<Wizard>,
+    pub(crate) wizard: Entity<Wizard>,
     docs: Entity<DocsView>,
     prereq: Option<Vec<ToolStatus>>,
     pending_load: Option<(ClusterSpec, std::path::PathBuf)>,
@@ -43,7 +45,26 @@ impl KwApp {
                 cx.notify();
             }
         });
-        let mut this = Self { screen: Screen::Home, welcome, wizard, docs, prereq: None, pending_load: None, pending_error: None, _subs: [sub] };
+        let pending_notice = cx.global_mut::<Ui>().startup_notice.take();
+        let mut this = Self {
+            update: crate::update::UpdateState::Idle,
+            pending_notice,
+            screen: Screen::Home,
+            welcome,
+            wizard,
+            docs,
+            prereq: None,
+            pending_load: None,
+            pending_error: None,
+            _subs: [sub],
+        };
+        this.auto_update_check(cx);
+        // Confirm a fresh update once the UI has run for a while (rollback guard).
+        cx.spawn(async move |_, cx| {
+            cx.background_executor().timer(std::time::Duration::from_secs(10)).await;
+            kw_update::mark_healthy(&settings::state_dir());
+        })
+        .detach();
         if welcome {
             this.check_prereq(cx);
         }
@@ -130,6 +151,9 @@ impl KwApp {
             self.start_with(spec, Some(dir), window, cx);
         }
         if let Some(msg) = self.pending_error.take() {
+            window.push_notification(msg, cx);
+        }
+        if let Some(msg) = self.pending_notice.take() {
             window.push_notification(msg, cx);
         }
     }
@@ -249,6 +273,15 @@ impl KwApp {
                             .icon(IconName::Map)
                             .label(i18n::t(lang, K::Tour))
                             .on_click(cx.listener(|this, _, _, cx| this.set_tour(Some(0), cx))),
+                    )
+                    .children(self.update_button(cx))
+                    .child(
+                        Button::new("settings")
+                            .ghost()
+                            .small()
+                            .icon(IconName::Settings)
+                            .tooltip(i18n::t(lang, K::Settings))
+                            .on_click(cx.listener(|this, _, window, cx| this.open_settings_dialog(window, cx))),
                     )
                     .child(
                         Button::new("lang")

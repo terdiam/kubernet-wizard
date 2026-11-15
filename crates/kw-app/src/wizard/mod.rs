@@ -417,6 +417,12 @@ impl Wizard {
         }
     }
 
+    /// A deploy/upgrade run is in progress (blocks installing app updates).
+    #[inline]
+    pub fn is_busy(&self) -> bool {
+        self.deploy.busy()
+    }
+
     #[inline]
     pub fn can_undo(&self) -> bool {
         !self.undo.is_empty()

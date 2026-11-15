@@ -17,6 +17,31 @@ pub struct Prefs {
     pub advanced: bool,
     #[serde(default)]
     pub welcomed: bool,
+    #[serde(default)]
+    pub update: UpdatePrefs,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdatePrefs {
+    #[serde(default = "yes")]
+    pub auto_check: bool,
+    #[serde(default)]
+    pub auto_download: bool,
+    #[serde(default)]
+    pub channel: kw_update::Channel,
+    /// Unix seconds of the last automatic check.
+    #[serde(default)]
+    pub last_check: u64,
+}
+
+const fn yes() -> bool {
+    true
+}
+
+impl Default for UpdatePrefs {
+    fn default() -> Self {
+        Self { auto_check: true, auto_download: false, channel: kw_update::Channel::Stable, last_check: 0 }
+    }
 }
 
 /// Global UI state read by every view during render.
@@ -25,6 +50,8 @@ pub struct Ui {
     pub prefs: Prefs,
     /// Active tour step index.
     pub tour: Option<usize>,
+    /// Shown once after startup (e.g. "updated to vX").
+    pub startup_notice: Option<gpui_kit::SharedString>,
 }
 
 impl Global for Ui {}
@@ -43,6 +70,21 @@ fn dirs() -> Option<ProjectDirs> {
 
 fn prefs_path() -> Option<PathBuf> {
     dirs().map(|d| d.config_dir().join("prefs.yaml"))
+}
+
+/// Update state (rollback marker, backups bookkeeping).
+pub fn state_dir() -> PathBuf {
+    dirs().map_or_else(|| PathBuf::from(".kw-state"), |d| d.data_dir().join("state"))
+}
+
+/// Downloaded update artifacts.
+pub fn updates_dir() -> PathBuf {
+    dirs().map_or_else(|| PathBuf::from(".kw-updates"), |d| d.cache_dir().join("updates"))
+}
+
+/// Verified catalog cache.
+pub fn catalog_dir() -> PathBuf {
+    dirs().map_or_else(|| PathBuf::from(".kw-catalog"), |d| d.data_dir().to_path_buf())
 }
 
 /// Default parent folder for generated projects.

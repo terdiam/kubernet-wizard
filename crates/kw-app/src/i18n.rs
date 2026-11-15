@@ -83,6 +83,20 @@ keys! {
     UpgradeHa => "Upgrade ke HA", "Upgrade to HA";
     UpgradeHaHint => "Tambahkan control plane baru (satu per baris: nama ip cp [user] [key]). Endpoint stabil sudah ada sejak awal, jadi tidak perlu rebuild.", "Add new control planes (one per line: name ip cp [user] [key]). The stable endpoint exists from day one, so no rebuild is needed.";
     TourDone => "Selesai", "Done";
+    Settings => "Pengaturan", "Settings";
+    UpdateAvailable => "Update tersedia", "Update available";
+    UpdateDownload => "Unduh update", "Download update";
+    UpdateRestart => "Restart & update", "Restart & update";
+    UpdateCheckNow => "Cek update sekarang", "Check for updates now";
+    UpdateChecking => "Mengecek update…", "Checking for updates…";
+    UpdateUpToDate => "Sudah versi terbaru", "You're up to date";
+    UpdateAutoCheck => "Cek update otomatis (tiap 24 jam)", "Check for updates automatically (every 24h)";
+    UpdateAutoDownload => "Unduh update otomatis", "Download updates automatically";
+    UpdateChannel => "Kanal rilis", "Release channel";
+    UpdateBusy => "Deploy sedang berjalan. Update dipasang setelah selesai.", "A deploy is running. Install the update after it finishes.";
+    UpdateVerified => "Terverifikasi (SHA-256 + tanda tangan minisign)", "Verified (SHA-256 + minisign signature)";
+    UpdateInstalled => "Diperbarui ke versi", "Updated to version";
+    CurrentVersion => "Versi saat ini", "Current version";
 }
 
 pub const fn step_title(lang: Lang, step: Step) -> &'static str {

@@ -1,0 +1,21 @@
+[package]
+name = "kw-update"
+description = "Update check, signed download, apply and rollback for kubernet-wizard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+semver = "1"
+sha2 = "0.11"
+minisign-verify = "0.3"
+ureq = "3"
+flate2 = "1"
+tar = "0.4"
+self-replace = "1"
+
+[lints]
+workspace = true

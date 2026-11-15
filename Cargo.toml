@@ -12,6 +12,7 @@ kw-core = { path = "crates/kw-core" }
 kw-distro = { path = "crates/kw-distro" }
 kw-render = { path = "crates/kw-render" }
 kw-exec = { path = "crates/kw-exec" }
+kw-update = { path = "crates/kw-update" }
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1"

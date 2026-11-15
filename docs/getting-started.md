@@ -31,3 +31,12 @@ Belum punya server? Jalankan **Demo** di langkah Deploy: alur dan log disimulasi
 ## CLI
 
 Semua fitur juga tersedia headless: `kw validate`, `kw generate`, `kw deploy`, `kw upgrade-ha`, `kw prereq`.
+
+## Update aplikasi
+
+- Aplikasi mengecek update otomatis tiap 24 jam (bisa dimatikan di ⚙ Pengaturan), atau manual lewat **Cek update sekarang**.
+- Kanal **Stable** atau **Beta**. Beta juga menerima rilis stable.
+- Setiap file update diverifikasi **SHA-256 + tanda tangan minisign** sebelum dipasang. File yang tidak valid dihapus dan tidak dipasang.
+- Update tidak dipasang saat deploy sedang berjalan.
+- Versi lama dicadangkan. Jika versi baru gagal start 3 kali, versi lama dipulihkan otomatis.
+- Instalasi dari paket (deb/rpm) diperbarui lewat package manager, bukan dari aplikasi.

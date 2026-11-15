@@ -1,0 +1,122 @@
+name: Release
+
+# Push a tag like v0.2.0 (stable) or v0.2.0-beta.1 (beta).
+#
+# Required repository settings:
+#   secrets.MINISIGN_SECRET_KEY  content of a key made with `minisign -G -W` (unencrypted;
+#                                protected by GitHub secret storage)
+#   vars.KW_UPDATE_PUBKEY        the matching public key (base64 line from minisign.pub),
+#                                embedded into the app to verify updates
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-14, target: aarch64-apple-darwin, platform: macos-aarch64 }
+          - { os: macos-14, target: x86_64-apple-darwin, platform: macos-x86_64 }
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu, platform: linux-x86_64 }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, platform: windows-x86_64 }
+    runs-on: ${{ matrix.os }}
+    env:
+      KW_UPDATE_PUBKEY: ${{ vars.KW_UPDATE_PUBKEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require update signing key
+        shell: bash
+        run: test -n "$KW_UPDATE_PUBKEY" || { echo "::error::set repository variable KW_UPDATE_PUBKEY"; exit 1; }
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ clang libfontconfig-dev libwayland-dev \
+            libxkbcommon-x11-dev libx11-xcb-dev libssl-dev libzstd-dev libasound2-dev libvulkan1
+
+      - name: Build
+        run: cargo build --profile dist --target ${{ matrix.target }} -p kw-app -p kw-cli
+
+      - name: Package
+        shell: bash
+        run: |
+          mkdir -p dist
+          bin=target/${{ matrix.target }}/dist
+          version="${GITHUB_REF_NAME#v}"
+          case "${{ runner.os }}" in
+            macOS)
+              scripts/bundle-macos.sh "$bin/kubernet-wizard" "$version" "dist/kubernet-wizard-${{ matrix.platform }}.app.tar.gz"
+              cp "$bin/kw" "dist/kw-${{ matrix.platform }}" ;;
+            Linux)
+              cp "$bin/kubernet-wizard" "dist/kubernet-wizard-${{ matrix.platform }}"
+              cp "$bin/kw" "dist/kw-${{ matrix.platform }}" ;;
+            Windows)
+              cp "$bin/kubernet-wizard.exe" "dist/kubernet-wizard-${{ matrix.platform }}.exe"
+              cp "$bin/kw.exe" "dist/kw-${{ matrix.platform }}.exe" ;;
+          esac
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          path: dist/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: dist-*
+          merge-multiple: true
+
+      - name: Sign artifacts and catalog
+        env:
+          MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
+        run: |
+          test -n "$MINISIGN_SECRET_KEY" || { echo "::error::set secret MINISIGN_SECRET_KEY"; exit 1; }
+          sudo apt-get update && sudo apt-get install -y minisign
+          umask 077
+          printf '%s\n' "$MINISIGN_SECRET_KEY" > "$RUNNER_TEMP/minisign.key"
+          cp release/catalog.json dist/catalog.json
+          for f in dist/*; do
+            case "$f" in *.minisig) continue ;; esac
+            minisign -S -s "$RUNNER_TEMP/minisign.key" -m "$f" -t "kubernet-wizard $GITHUB_REF_NAME $(basename "$f")"
+          done
+          rm -f "$RUNNER_TEMP/minisign.key"
+
+      - name: Update manifest
+        run: |
+          git log -1 --format=%B "$GITHUB_REF_NAME" > notes.md
+          python3 scripts/make-manifest.py "$GITHUB_REF_NAME" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}" dist notes.md > dist/latest.json
+
+      - name: Publish release
+        run: |
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then pre=--prerelease; else pre=--latest; fi
+          gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --notes-file notes.md $pre
+
+      - name: Update rolling beta feed
+        # Beta users receive both prereleases and stable releases.
+        run: |
+          gh release view beta >/dev/null 2>&1 || \
+            gh release create beta --prerelease --title "Beta channel" --notes "Rolling beta update feed." --target "$GITHUB_SHA"
+          gh release upload beta dist/latest.json --clobber

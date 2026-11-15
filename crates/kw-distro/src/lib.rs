@@ -5,6 +5,9 @@
 
 mod data;
 
+use std::collections::BTreeMap;
+use std::sync::OnceLock;
+
 use kw_core::{Capabilities, ClusterSpec, DistroId, Phase};
 use serde::Serialize;
 
@@ -80,7 +83,13 @@ impl Distro for DistroKind {
     }
     #[inline]
     fn capabilities(&self) -> Capabilities {
-        dispatch!(self, d => d.capabilities())
+        let mut caps = dispatch!(self, d => d.capabilities());
+        if caps.is_ready()
+            && let Some(v) = CATALOG.get().and_then(|c| c.get(&self.id()))
+        {
+            caps.versions = v;
+        }
+        caps
     }
     #[inline]
     fn vars(&self) -> DistroVars {
@@ -94,6 +103,29 @@ impl Distro for DistroKind {
     fn description(&self) -> &'static str {
         dispatch!(self, d => d.description())
     }
+}
+
+type VersionMap = BTreeMap<DistroId, &'static [&'static str]>;
+
+/// Version catalog override (from the signed online catalog). Set once.
+static CATALOG: OnceLock<VersionMap> = OnceLock::new();
+
+/// Installs a newer tested-version catalog. Only the first call wins; strings
+/// are leaked once per process (a few hundred bytes), keeping `Capabilities`
+/// `Copy` and allocation-free on every read.
+pub fn set_catalog<I, V>(entries: I) -> bool
+where
+    I: IntoIterator<Item = (DistroId, V)>,
+    V: IntoIterator<Item = String>,
+{
+    let map: VersionMap = entries
+        .into_iter()
+        .filter_map(|(id, versions)| {
+            let leaked: Vec<&'static str> = versions.into_iter().map(|v| &*Box::leak(v.into_boxed_str())).collect();
+            (!leaked.is_empty()).then(|| (id, &*Box::leak(leaked.into_boxed_slice())))
+        })
+        .collect();
+    CATALOG.set(map).is_ok()
 }
 
 /// All distros in display order (ready first, then planned by phase).
@@ -162,6 +194,17 @@ mod tests {
         for d in REGISTRY.iter().filter(|d| d.is_ready()) {
             assert!(!d.default_version().is_empty(), "{:?}", d.id());
         }
+    }
+
+    #[test]
+    fn catalog_overrides_ready_versions_only() {
+        assert!(set_catalog([
+            (DistroId::K3s, vec!["v9.9.9+k3s1".to_owned()]),
+            (DistroId::Microk8s, vec!["1.0".to_owned()]),
+        ]));
+        assert_eq!(get(DistroId::K3s).capabilities().versions, &["v9.9.9+k3s1"]);
+        assert_eq!(get(DistroId::Microk8s).capabilities().versions, &[] as &[&str]);
+        assert!(!set_catalog([(DistroId::K3s, vec!["x".to_owned()])]), "second set ignored");
     }
 
     #[test]
