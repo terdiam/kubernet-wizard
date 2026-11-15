@@ -1,6 +1,7 @@
 //! Wizard shell: stepper, content frame, context panel, footer + widgets.
 
 use gpui_kit::component::button::{Button, ButtonVariants as _};
+use gpui_kit::assets::IconName as Lucide;
 use gpui_kit::component::{ActiveTheme, Disableable, Icon, IconName, Selectable, Sizable, h_flex, v_flex};
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::*;
@@ -157,6 +158,7 @@ impl Wizard {
                             .ghost()
                             .small()
                             .flex_1()
+                            .icon(step_icon(s))
                             .label(format!("{}. {}", s.index() + 1, i18n::step_title(lang, s)))
                             .selected(s == self.step)
                             .on_click(cx.listener(move |this, _, _, cx| this.go(s, cx))),
@@ -286,7 +288,13 @@ impl Render for Wizard {
             .p_5()
             .gap_4()
             .overflow_y_scroll()
-            .child(div().text_xl().font_semibold().child(i18n::step_title(lang, self.step)))
+            .child(
+                h_flex()
+                    .gap_2()
+                    .items_center()
+                    .child(step_icon(self.step).large())
+                    .child(div().text_xl().font_semibold().child(i18n::step_title(lang, self.step))),
+            )
             .child(content);
         h_flex()
             .size_full()
@@ -301,4 +309,22 @@ impl Render for Wizard {
             )
             .child(self.render_context(cx))
     }
+}
+
+/// Icon shown next to a step in the stepper and title.
+pub(crate) fn step_icon(step: Step) -> Icon {
+    Icon::new(match step {
+        Step::Project => Lucide::FolderOpen,
+        Step::Target => Lucide::Cloud,
+        Step::Distro => Lucide::Boxes,
+        Step::Topology => Lucide::Server,
+        Step::Endpoint => Lucide::Waypoints,
+        Step::Network => Lucide::Network,
+        Step::Ingress => Lucide::Route,
+        Step::Features => Lucide::Puzzle,
+        Step::GitOps => Lucide::GitBranch,
+        Step::Tuning => Lucide::Gauge,
+        Step::Review => Lucide::ClipboardCheck,
+        Step::Deploy => Lucide::Rocket,
+    })
 }

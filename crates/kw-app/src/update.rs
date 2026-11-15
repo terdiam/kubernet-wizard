@@ -105,6 +105,9 @@ impl KwApp {
 
     pub(crate) fn download_update(&mut self, cx: &mut Context<Self>) {
         let UpdateState::Available(update) = &self.update else { return };
+        if package_managed() {
+            return;
+        }
         let update = Arc::clone(update);
         let progress = Arc::new(Progress::default());
         self.update = UpdateState::Downloading(Arc::clone(&update), Arc::clone(&progress));
@@ -229,9 +232,19 @@ impl KwApp {
                     },
                     |d, e| d.child(div().text_sm().text_color(cx.theme().danger).child(e)),
                 );
+            let pkg = package_managed();
+            let body = body.when(pkg && matches!(state, UpdateState::Available(_)), |d| {
+                d.child(div().text_sm().child(i18n::t(lang, K::UpdateViaPackage)))
+            });
             let action = {
                 let this = this.clone();
                 match &state {
+                    UpdateState::Available(u) if pkg => {
+                        let url = format!("{}/tag/v{}", RELEASES_PAGE, u.version);
+                        Some(Button::new("upd-release").primary().icon(IconName::ExternalLink).label(i18n::t(lang, K::UpdateOpenRelease)).on_click(
+                            move |_, _, cx| cx.open_url(&url),
+                        ))
+                    }
                     UpdateState::Available(_) => Some(Button::new("upd-download").primary().icon(IconName::ArrowDown).label(i18n::t(lang, K::UpdateDownload)).on_click(
                         move |_, _, cx| {
                             let _ = this.update(cx, |a, cx| a.download_update(cx));
@@ -350,4 +363,12 @@ fn pct(p: &Progress) -> String {
     } else {
         format!("{:.0}% · {done_mb}/{} MB", pct_value(p), total / 1_048_576)
     }
+}
+
+const RELEASES_PAGE: &str = "https://github.com/terdiam/kubernet-wizard/releases";
+
+/// deb/rpm installs are updated by the package manager, not in place.
+#[inline]
+fn package_managed() -> bool {
+    matches!(kw_update::detect_install(), kw_update::Install::PackageManaged)
 }

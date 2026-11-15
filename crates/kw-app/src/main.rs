@@ -10,6 +10,7 @@
 )]
 
 mod app;
+mod assets;
 mod docs;
 mod help;
 mod i18n;
@@ -40,13 +41,15 @@ fn main() {
         _ => None,
     };
 
-    gpui_kit::application().with_assets(gpui_kit::assets::Assets).run(|cx| {
+    gpui_kit::application().with_assets(assets::KwAssets).run(|cx| {
         gpui_kit::init(cx);
         cx.set_global(settings::Ui { prefs, tour: None, startup_notice });
 
         let options = WindowOptions {
             window_bounds: Some(WindowBounds::centered(size(px(1280.), px(820.)), cx)),
             titlebar: Some(TitlebarOptions { title: Some("kubernet-wizard".into()), ..Default::default() }),
+            // Matches the Linux .desktop file so launchers show the app icon.
+            app_id: Some("kubernet-wizard".to_owned()),
             ..Default::default()
         };
         let opened = gpui_kit::open_window(options, cx, |window, cx| {

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=kubernet-wizard
+GenericName=Kubernetes Cluster Wizard
+Comment=Design, generate and deploy Kubernetes clusters
+Exec=kubernet-wizard
+Icon=kubernet-wizard
+Terminal=false
+Categories=Development;System;
+StartupWMClass=kubernet-wizard

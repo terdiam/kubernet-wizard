@@ -87,6 +87,8 @@ keys! {
     UpdateAvailable => "Update tersedia", "Update available";
     UpdateDownload => "Unduh update", "Download update";
     UpdateRestart => "Restart & update", "Restart & update";
+    UpdateViaPackage => "Terpasang lewat paket sistem: pasang .deb/.rpm baru dari halaman rilis.", "Installed from a system package: install the new .deb/.rpm from the release page.";
+    UpdateOpenRelease => "Buka halaman rilis", "Open release page";
     UpdateCheckNow => "Cek update sekarang", "Check for updates now";
     UpdateChecking => "Mengecek update…", "Checking for updates…";
     UpdateUpToDate => "Sudah versi terbaru", "You're up to date";

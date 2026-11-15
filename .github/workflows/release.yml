@@ -1,6 +1,8 @@
 name: Release
 
 # Push a tag like v0.2.0 (stable) or v0.2.0-beta.1 (beta).
+# Run it manually (workflow_dispatch) to build and download installers without
+# publishing a release.
 #
 # Required repository settings:
 #   secrets.MINISIGN_SECRET_KEY  content of a key made with `minisign -G -W` (unencrypted;
@@ -10,6 +12,7 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -31,7 +34,7 @@ jobs:
     env:
       KW_UPDATE_PUBKEY: ${{ vars.KW_UPDATE_PUBKEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Require update signing key
         shell: bash
@@ -46,43 +49,69 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc g++ clang libfontconfig-dev libwayland-dev \
-            libxkbcommon-x11-dev libx11-xcb-dev libssl-dev libzstd-dev libasound2-dev libvulkan1
+            libxkbcommon-x11-dev libx11-xcb-dev libssl-dev libzstd-dev libasound2-dev libvulkan1 \
+            dpkg-dev rpm file
 
       - name: Build
         run: cargo build --profile dist --target ${{ matrix.target }} -p kw-app -p kw-cli
+
+      - name: Version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then v="${GITHUB_REF_NAME#v}"
+          else v="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"; fi
+          echo "KW_VERSION=$v" >> "$GITHUB_ENV"
 
       - name: Package
         shell: bash
         run: |
           mkdir -p dist
           bin=target/${{ matrix.target }}/dist
-          version="${GITHUB_REF_NAME#v}"
+          version="$KW_VERSION"
           case "${{ runner.os }}" in
             macOS)
-              scripts/bundle-macos.sh "$bin/kubernet-wizard" "$version" "dist/kubernet-wizard-${{ matrix.platform }}.app.tar.gz"
+              scripts/bundle-macos.sh "$bin/kubernet-wizard" "$version" \
+                "dist/kubernet-wizard-${{ matrix.platform }}.app.tar.gz" "dist/kubernet-wizard-${{ matrix.platform }}.dmg"
               cp "$bin/kw" "dist/kw-${{ matrix.platform }}" ;;
             Linux)
               cp "$bin/kubernet-wizard" "dist/kubernet-wizard-${{ matrix.platform }}"
-              cp "$bin/kw" "dist/kw-${{ matrix.platform }}" ;;
+              cp "$bin/kw" "dist/kw-${{ matrix.platform }}"
+              # Launcher entry + icons (assets/linux/install.sh).
+              mkdir -p desktop/kubernet-wizard
+              cp assets/linux/* desktop/kubernet-wizard/
+              cp -r assets/icon/hicolor desktop/kubernet-wizard/
+              tar -C desktop -czf "dist/kubernet-wizard-linux-desktop.tar.gz" kubernet-wizard
+              # Installers: .deb and .rpm.
+              scripts/package-linux.sh "$bin/kubernet-wizard" "$bin/kw" "$version" dist ;;
             Windows)
               cp "$bin/kubernet-wizard.exe" "dist/kubernet-wizard-${{ matrix.platform }}.exe"
               cp "$bin/kw.exe" "dist/kw-${{ matrix.platform }}.exe" ;;
           esac
 
-      - uses: actions/upload-artifact@v4
+      - name: Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" }
+          & $iscc /Q "/DAppVersion=$env:KW_VERSION" "/DSourceDir=$PWD\target\${{ matrix.target }}\dist" "/DOutputDir=$PWD\dist" assets\windows\kubernet-wizard.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-${{ matrix.platform }}
           path: dist/*
 
   publish:
     needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           pattern: dist-*

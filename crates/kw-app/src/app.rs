@@ -1,6 +1,7 @@
 //! App shell: header, screens (Welcome, Home, Wizard, Docs), tour card.
 
 use gpui_kit::component::button::{Button, ButtonVariants as _};
+use gpui_kit::assets::IconName as Lucide;
 use gpui_kit::component::{ActiveTheme, Disableable, Icon, IconName, Selectable, Sizable, WindowExt, h_flex, v_flex};
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::*;
@@ -9,6 +10,7 @@ use kw_core::ClusterSpec;
 use kw_core::presets::Preset;
 use kw_exec::prereq::{self, ToolState, ToolStatus};
 
+use crate::assets;
 use crate::docs::DocsView;
 use crate::i18n::{self, K};
 use crate::onboarding::{MAIN_TOUR, Screen};
@@ -179,12 +181,13 @@ impl KwApp {
                 h_flex()
                     .gap_2()
                     .items_center()
-                    .child(Icon::new(IconName::LayoutDashboard))
+                    .child(img(assets::LOGO).size(px(22.)))
                     .child(div().font_semibold().child("kubernet-wizard"))
                     .child(
                         Button::new("nav-home")
                             .ghost()
                             .small()
+                            .icon(Lucide::House)
                             .label(i18n::t(lang, K::Home))
                             .selected(self.screen == Screen::Home)
                             .on_click(cx.listener(|this, _, _, cx| {
@@ -196,6 +199,7 @@ impl KwApp {
                         Button::new("nav-wizard")
                             .ghost()
                             .small()
+                            .icon(Lucide::WandSparkles)
                             .label("Wizard")
                             .selected(in_wizard)
                             .on_click(cx.listener(|this, _, _, cx| {
@@ -327,7 +331,13 @@ impl KwApp {
                     .gap_1()
                     .rounded_md()
                     .bg(card)
-                    .child(div().font_semibold().child(p.title()))
+                    .child(
+                        h_flex()
+                            .gap_2()
+                            .items_center()
+                            .child(preset_icon(p).text_color(muted))
+                            .child(div().font_semibold().child(p.title())),
+                    )
                     .child(div().text_sm().text_color(muted).child(p.summary()))
                     .child(
                         Button::new(("preset", i))
@@ -368,10 +378,16 @@ impl KwApp {
             .gap_6()
             .overflow_y_scroll()
             .child(
-                v_flex()
-                    .gap_1()
-                    .child(div().text_2xl().font_semibold().child("kubernet-wizard"))
-                    .child(div().text_color(muted).child(i18n::t(lang, K::Tagline))),
+                h_flex()
+                    .gap_4()
+                    .items_center()
+                    .child(img(assets::LOGO).size(px(64.)))
+                    .child(
+                        v_flex()
+                            .gap_1()
+                            .child(div().text_2xl().font_semibold().child("kubernet-wizard"))
+                            .child(div().text_color(muted).child(i18n::t(lang, K::Tagline))),
+                    ),
             )
             .child(h_flex().gap_4().child(new_card).child(open_card).child(docs_card))
             .child(div().font_semibold().child(i18n::t(lang, K::Presets)))
@@ -390,6 +406,7 @@ impl KwApp {
                 v_flex()
                     .w(px(620.))
                     .gap_4()
+                    .child(img(assets::LOGO).size(px(88.)))
                     .child(div().text_2xl().font_semibold().child(i18n::t(lang, K::WelcomeTitle)))
                     .child(div().text_color(muted).child(i18n::t(lang, K::WelcomeBody)))
                     .child(
@@ -522,4 +539,13 @@ impl Render for KwApp {
             .child(div().flex_1().min_h_0().child(body))
             .children(tour)
     }
+}
+
+fn preset_icon(p: Preset) -> Icon {
+    Icon::new(match p {
+        Preset::DevLocal => Lucide::Laptop,
+        Preset::Homelab => Lucide::House,
+        Preset::ProductionOnPrem => Lucide::Building2,
+        Preset::CloudHetzner => Lucide::Cloud,
+    })
 }
