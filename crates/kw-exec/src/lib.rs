@@ -3,6 +3,7 @@
 //! Threads + bounded std channels only: no async runtime, no locks.
 
 pub mod prereq;
+pub mod tools;
 
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, BufWriter, Write};
@@ -79,15 +80,20 @@ pub enum ExecError {
     Spawn { program: &'static str, source: std::io::Error },
 }
 
-/// Builds a command for the host. On Windows, Ansible runs inside WSL.
+/// Builds a command for the host. App-managed tools ([`tools`]) win over
+/// `PATH`; on Windows, Ansible runs inside WSL.
 pub fn host_command(program: &str) -> Command {
-    if cfg!(windows) && program.starts_with("ansible") {
+    let mut c = if cfg!(windows) && program.starts_with("ansible") {
         let mut c = Command::new("wsl");
         c.arg("--").arg(program);
         c
     } else {
-        Command::new(program)
+        tools::managed(program).map_or_else(|| Command::new(program), Command::new)
+    };
+    if let Some(path) = tools::path_env() {
+        c.env("PATH", path);
     }
+    c
 }
 
 /// `C:\Users\me\x` → `/mnt/c/Users/me/x` (WSL path).

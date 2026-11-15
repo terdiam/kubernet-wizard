@@ -50,6 +50,7 @@ cargo run -p kw-cli -- deploy --spec examples/k3s-ha.yaml --out /tmp/kw-out
 ```
 
 Requirements on the operator machine: Ansible ≥ 2.16 (WSL2 on Windows), kubectl, Helm, SSH; OpenTofu for cloud provisioning.
+The app checks them on every start and installs missing ones with one click into its own folder (official binaries with SHA-256 check, Ansible in a Python venv; no admin rights). Headless: `kw tools install <name|all>`.
 
 ## Development
 

@@ -8,6 +8,13 @@ license.workspace = true
 [dependencies]
 kw-core.workspace = true
 thiserror.workspace = true
+serde_json.workspace = true
+directories.workspace = true
+sha2 = "0.11"
+ureq = "3"
+flate2 = "1"
+tar = "0.4"
+zip = { version = "2", default-features = false, features = ["deflate"] }
 
 [lints]
 workspace = true

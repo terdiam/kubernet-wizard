@@ -20,6 +20,17 @@ kubernet-wizard membantu Anda mendesain cluster Kubernetes langkah demi langkah,
 
 Windows: Ansible berjalan di **WSL2** (`wsl --install`, lalu `sudo apt install ansible` di dalam WSL).
 
+Aplikasi memeriksa tool wajib setiap kali dibuka. Selama ada yang belum terpasang, layar **Lengkapi prasyarat** tidak bisa dilewati. Klik **Install** (atau **Install semua**) dan aplikasi memasangnya sendiri tanpa hak admin:
+
+| Tool | Cara pasang otomatis |
+|------|----------------------|
+| kubectl, Helm, OpenTofu | Binary resmi (dl.k8s.io, get.helm.sh, rilis GitHub OpenTofu), dicek SHA-256 |
+| Ansible | `ansible-core` di Python venv (butuh Python ≥ 3.10) |
+| Git | macOS: dialog Command Line Tools · Windows: `winget` · Linux: `pkexec` + apt/dnf |
+| OpenSSH | Linux: `pkexec` + apt/dnf · macOS & Windows: sudah bawaan / Optional features |
+
+Tool disimpan di folder data aplikasi (`…/kubernet-wizard/tools`) dan dipakai lebih dulu daripada `PATH`. Dari terminal: `kw tools install <nama|all>`.
+
 ## Mode Dasar vs Lanjutan
 
 Mode **Dasar** hanya menampilkan pilihan penting dengan default aman. Mode **Lanjutan** membuka CIDR, MTU, mode kube-proxy, dan detail tuning.

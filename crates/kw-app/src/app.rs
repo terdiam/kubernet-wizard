@@ -8,7 +8,7 @@ use gpui_kit::*;
 use gpui_kit::base::StyledExt as _;
 use kw_core::ClusterSpec;
 use kw_core::presets::Preset;
-use kw_exec::prereq::{self, ToolState, ToolStatus};
+use kw_exec::prereq::{self, ToolStatus};
 
 use crate::assets;
 use crate::docs::DocsView;
@@ -22,10 +22,11 @@ pub struct KwApp {
     pub(crate) update: crate::update::UpdateState,
     pub(crate) pending_notice: Option<SharedString>,
     screen: Screen,
-    welcome: bool,
+    pub(crate) welcome: bool,
     pub(crate) wizard: Entity<Wizard>,
     docs: Entity<DocsView>,
-    prereq: Option<Vec<ToolStatus>>,
+    pub(crate) prereq: Option<Vec<ToolStatus>>,
+    pub(crate) setup: crate::setup::SetupState,
     pending_load: Option<(ClusterSpec, std::path::PathBuf)>,
     pending_error: Option<SharedString>,
     _subs: [Subscription; 1],
@@ -57,6 +58,7 @@ impl KwApp {
             wizard,
             docs,
             prereq: None,
+            setup: crate::setup::SetupState::default(),
             pending_load: None,
             pending_error: None,
             _subs: [sub],
@@ -68,13 +70,13 @@ impl KwApp {
             kw_update::mark_healthy(&settings::state_dir());
         })
         .detach();
-        if welcome {
-            this.check_prereq(cx);
-        }
+        crate::menu::install(cx.entity().downgrade(), window.window_handle(), cx);
+        // Required tools gate every start, not only the first one.
+        this.check_prereq(cx);
         this
     }
 
-    fn check_prereq(&mut self, cx: &mut Context<Self>) {
+    pub(crate) fn check_prereq(&mut self, cx: &mut Context<Self>) {
         cx.spawn(async move |this, cx| {
             let res = cx.background_spawn(async move { prereq::check_all(true) }).await;
             let _ = this.update(cx, |a, cx| {
@@ -89,6 +91,7 @@ impl KwApp {
         let ui = cx.global_mut::<Ui>();
         f(&mut ui.prefs);
         settings::save(&ui.prefs);
+        crate::menu::set_menus(cx);
         self.refresh_children(cx);
     }
 
@@ -107,7 +110,7 @@ impl KwApp {
         self.refresh_children(cx);
     }
 
-    fn finish_welcome(&mut self, tour: bool, cx: &mut Context<Self>) {
+    pub(crate) fn finish_welcome(&mut self, tour: bool, cx: &mut Context<Self>) {
         self.welcome = false;
         self.update_prefs(cx, |p| p.welcomed = true);
         if tour {
@@ -427,109 +430,6 @@ impl KwApp {
             .child(presets)
     }
 
-    fn welcome_screen(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let lang = cx.global::<Ui>().prefs.lang;
-        let p = pal(cx);
-        let mono = cx.theme().mono_font_family.clone();
-        let list = self.prereq.as_deref().unwrap_or_default();
-        let ready = list.iter().filter(|s| s.is_ok()).count();
-        v_flex()
-            .id("welcome")
-            .size_full()
-            .items_center()
-            .px_6()
-            .py(px(36.))
-            .gap(px(18.))
-            .bg(p.bg)
-            .overflow_y_scroll()
-            .child(img(assets::LOGO).size(px(88.)))
-            .child(div().text_3xl().font_bold().child(i18n::t(lang, K::WelcomeTitle)))
-            .child(div().max_w(px(560.)).text_center().text_color(p.mu).child(i18n::t(lang, K::WelcomeBody)))
-            .child(
-                v_flex()
-                    .w(px(640.))
-                    .mt_1()
-                    .rounded(px(12.))
-                    .border_1()
-                    .border_color(p.bd)
-                    .bg(p.sf)
-                    .child(
-                        h_flex()
-                            .justify_between()
-                            .items_center()
-                            .px(px(18.))
-                            .py(px(14.))
-                            .child(div().text_sm().font_bold().child(i18n::t(lang, K::Prereq)))
-                            .when(!list.is_empty(), |d| {
-                                d.child(div().text_xs().text_color(p.mu).child(format!("{ready} / {}", list.len())))
-                            }),
-                    )
-                    .when(self.prereq.is_none(), |d| {
-                        d.child(div().px(px(18.)).py(px(10.)).border_t_1().border_color(p.bd).text_sm().text_color(p.mu).child("…"))
-                    })
-                    .children(list.iter().map(|s| {
-                        let (icon, bg, fg, label, ver) = match s.state {
-                            ToolState::Ok { version } => (IconName::CircleCheck, p.oks, p.okt, K::StDone, format!("{}.{}", version.0, version.1)),
-                            ToolState::Outdated { version } => {
-                                (IconName::TriangleAlert, p.wns, p.wnt, K::StWarning, format!("{}.{}", version.0, version.1))
-                            }
-                            ToolState::Missing if s.tool.cloud_only => (IconName::TriangleAlert, p.wns, p.wnt, K::StWarning, "—".to_owned()),
-                            ToolState::Missing => (IconName::CircleX, p.ers, p.ert, K::StError, "—".to_owned()),
-                        };
-                        h_flex()
-                            .gap_3()
-                            .items_center()
-                            .px(px(18.))
-                            .py(px(10.))
-                            .border_t_1()
-                            .border_color(p.bd)
-                            .text_sm()
-                            .child(div().w(px(120.)).font_semibold().child(s.tool.name))
-                            .child(div().w(px(70.)).text_xs().text_color(p.mu).font_family(mono.clone()).child(ver))
-                            .child(
-                                h_flex()
-                                    .gap_1()
-                                    .items_center()
-                                    .px(px(9.))
-                                    .py(px(2.))
-                                    .rounded_full()
-                                    .bg(bg)
-                                    .text_color(fg)
-                                    .text_xs()
-                                    .font_semibold()
-                                    .child(Icon::new(icon).xsmall())
-                                    .child(i18n::t(lang, label)),
-                            )
-                            .child(
-                                div()
-                                    .flex_1()
-                                    .text_xs()
-                                    .text_color(p.mu)
-                                    .text_right()
-                                    .when(!s.is_ok(), |d| d.child(s.tool.install.current())),
-                            )
-                    })),
-            )
-            .child(
-                h_flex()
-                    .gap(px(10.))
-                    .mt_1()
-                    .child(
-                        Button::new("w-tour")
-                            .primary()
-                            .icon(IconName::Map)
-                            .label(i18n::t(lang, K::StartTour))
-                            .on_click(cx.listener(|this, _, _, cx| this.finish_welcome(true, cx))),
-                    )
-                    .child(
-                        Button::new("w-skip")
-                            .ghost()
-                            .label(i18n::t(lang, K::Skip))
-                            .on_click(cx.listener(|this, _, _, cx| this.finish_welcome(false, cx))),
-                    ),
-            )
-    }
-
     fn tour_card(&self, cx: &mut Context<Self>) -> Option<impl IntoElement> {
         let ui = cx.global::<Ui>();
         let idx = ui.tour?;
@@ -596,8 +496,9 @@ impl Render for KwApp {
         self.apply_pending(window, cx);
         let p = pal(cx);
         let (bg, fg) = (p.bg, p.tx);
-        let body: AnyElement = if self.welcome {
-            self.welcome_screen(cx).into_any_element()
+        let gate = self.welcome || self.setup_blocked();
+        let body: AnyElement = if gate {
+            self.setup_screen(cx).into_any_element()
         } else {
             match self.screen {
                 Screen::Home => self.home(cx).into_any_element(),
@@ -605,7 +506,7 @@ impl Render for KwApp {
                 Screen::Docs => self.docs.clone().into_any_element(),
             }
         };
-        let header = if self.welcome { None } else { Some(self.header(cx).into_any_element()) };
+        let header = if gate { None } else { Some(self.header(cx).into_any_element()) };
         let tour = self.tour_card(cx).map(IntoElement::into_any_element);
         v_flex()
             .size_full()

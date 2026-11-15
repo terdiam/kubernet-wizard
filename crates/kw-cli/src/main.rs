@@ -7,7 +7,7 @@ use std::process::ExitCode;
 
 use anyhow::{Context, Result, bail};
 use kw_core::{ClusterSpec, Severity, presets::Preset};
-use kw_exec::{Event, Step, prereq};
+use kw_exec::{Event, Step, prereq, tools};
 
 const USAGE: &str = "\
 kw — kubernet-wizard CLI
@@ -20,6 +20,7 @@ USAGE:
   kw deploy   --spec FILE --out DIR [--yes] [--demo]
   kw upgrade-ha --out DIR
   kw prereq [--cloud]
+  kw tools install <name|all> [--cloud]     install kubectl, helm, tofu, ansible, ... (no admin)
 ";
 
 #[derive(Default)]
@@ -110,6 +111,7 @@ fn confirm(prompt: &str) -> bool {
 }
 
 fn run() -> Result<bool> {
+    tools::init_default();
     let a = parse()?;
     match a.cmd.as_str() {
         "presets" => {
@@ -157,6 +159,23 @@ fn run() -> Result<bool> {
             }
             generate(&spec, &out)?;
             return Ok(stream(&kw_exec::start(&out, spec.tofu_provider(), &[Step::AnsibleDeps, Step::AnsibleUpgradeHa, Step::Smoke])));
+        }
+        "tools" => {
+            let which = a.pos.as_deref().context("kw tools install <name|all>")?;
+            let list: Vec<&prereq::Tool> = if which == "all" {
+                prereq::check_all(a.cloud).iter().filter(|s| !s.is_ok()).filter_map(|s| tools::find(s.tool.program)).collect()
+            } else {
+                vec![tools::find(which).with_context(|| format!("unknown tool {which}"))?]
+            };
+            let mut ok = true;
+            for t in list {
+                println!("==> {}", t.name);
+                if let Err(e) = tools::install(t, |l| println!("    {l}")) {
+                    ok = false;
+                    eprintln!("    failed: {e}");
+                }
+            }
+            return Ok(ok);
         }
         "prereq" => {
             let mut ok = true;

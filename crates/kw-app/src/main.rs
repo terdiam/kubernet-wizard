@@ -16,8 +16,10 @@ mod assets;
 mod docs;
 mod help;
 mod i18n;
+mod menu;
 mod onboarding;
 mod settings;
+mod setup;
 mod theme;
 mod update;
 mod wizard;
@@ -25,6 +27,7 @@ mod wizard;
 use gpui_kit::*;
 
 fn main() {
+    kw_exec::tools::init_default();
     // Rollback guard must run before any UI work.
     let version = kw_update::current_version().to_string();
     let startup = kw_update::on_startup(&settings::state_dir(), &version);
