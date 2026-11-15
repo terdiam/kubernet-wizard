@@ -56,6 +56,15 @@ impl ClusterSpec {
         matches!(self.target, Target::Cloud { .. })
     }
 
+    /// Provider whose VMs OpenTofu creates, if any.
+    #[inline]
+    pub fn tofu_provider(&self) -> Option<CloudProvider> {
+        match self.target {
+            Target::Cloud { provider, provisioning: Provisioning::Tofu { .. } } => Some(provider),
+            _ => None,
+        }
+    }
+
     /// Cloud target whose provider has managed load balancers.
     #[inline]
     pub fn has_cloud_lb(&self) -> bool {

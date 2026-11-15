@@ -333,7 +333,7 @@ impl Wizard {
     fn step_topology(&self, cx: &mut Context<Self>) -> Div {
         let t = &self.spec.topology;
         let caps = kw_distro::caps_for(&self.spec);
-        let needs_inventory = !kw_exec::uses_tofu(&self.spec);
+        let needs_inventory = self.spec.tofu_provider().is_none();
         let workers = t.workers;
         let muted = cx.theme().muted_foreground;
         v_flex()

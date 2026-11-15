@@ -2,3 +2,4 @@
 .claude/
 *.log
 .DS_Store
+graphify-out/

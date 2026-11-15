@@ -114,7 +114,7 @@ impl DeployState {
 
 impl Wizard {
     pub(super) fn check_prereq(&mut self, cx: &mut Context<Self>) {
-        let cloud = kw_exec::uses_tofu(&self.spec);
+        let cloud = self.spec.tofu_provider().is_some();
         cx.spawn(async move |this, cx| {
             let res = cx.background_spawn(async move { prereq::check_all(cloud) }).await;
             let _ = this.update(cx, |w, cx| {
@@ -130,7 +130,7 @@ impl Wizard {
         let res = kw_render::render_spec(&self.spec)
             .map_err(|e| e.to_string())
             .and_then(|files| {
-                kw_render::write_all(&files, &self.project_dir, kw_exec::uses_tofu(&self.spec)).map_err(|e| e.to_string())
+                kw_render::write_all(&files, &self.project_dir, self.spec.tofu_provider().is_some()).map_err(|e| e.to_string())
             });
         self.deploy.message = Some(match &res {
             Ok(n) => format!("{n} files → {}", self.project_dir.display()).into(),
@@ -161,11 +161,11 @@ impl Wizard {
     }
 
     pub(super) fn start_demo(&mut self, cx: &mut Context<Self>) {
-        let mut steps: SmallVec<[ExecStep; 6]> = SmallVec::from_slice(kw_exec::plan_steps(&self.spec));
-        steps.extend_from_slice(kw_exec::apply_steps(&self.spec));
+        let mut steps: SmallVec<[ExecStep; 6]> = SmallVec::from_slice(kw_exec::plan_steps(self.spec.tofu_provider()));
+        steps.extend_from_slice(kw_exec::apply_steps(self.spec.tofu_provider()));
         self.deploy.demo = true;
         self.deploy.steps.clear();
-        let run = kw_exec::start_demo(&self.spec);
+        let run = kw_exec::start_demo(self.spec.tofu_provider());
         self.start_run(run, &steps, Phase::Running, cx);
     }
 
@@ -176,18 +176,18 @@ impl Wizard {
         }
         self.deploy.demo = false;
         self.deploy.steps.clear();
-        let plan = kw_exec::plan_steps(&self.spec);
+        let plan = kw_exec::plan_steps(self.spec.tofu_provider());
         if plan.is_empty() {
             self.start_apply(cx);
         } else {
-            let run = kw_exec::start(&self.project_dir, &self.spec, plan);
+            let run = kw_exec::start(&self.project_dir, self.spec.tofu_provider(), plan);
             self.start_run(run, plan, Phase::Planning, cx);
         }
     }
 
     pub(super) fn start_apply(&mut self, cx: &mut Context<Self>) {
-        let steps = kw_exec::apply_steps(&self.spec);
-        let run = kw_exec::start(&self.project_dir, &self.spec, steps);
+        let steps = kw_exec::apply_steps(self.spec.tofu_provider());
+        let run = kw_exec::start(&self.project_dir, self.spec.tofu_provider(), steps);
         self.start_run(run, steps, Phase::Running, cx);
     }
 
@@ -211,7 +211,7 @@ impl Wizard {
                     return;
                 }
                 self.deploy.demo = false;
-                let run = kw_exec::start(&self.project_dir, &self.spec, &STEPS);
+                let run = kw_exec::start(&self.project_dir, self.spec.tofu_provider(), &STEPS);
                 self.start_run(run, &STEPS, Phase::Running, cx);
             }
             Err(e) => {

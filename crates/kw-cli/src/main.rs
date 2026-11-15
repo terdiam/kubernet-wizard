@@ -77,7 +77,7 @@ fn generate(spec: &ClusterSpec, out: &Path) -> Result<()> {
         bail!("spec has errors");
     }
     let files = kw_render::render_spec(spec)?;
-    let n = kw_render::write_all(&files, out, kw_exec::uses_tofu(spec))?;
+    let n = kw_render::write_all(&files, out, spec.tofu_provider().is_some())?;
     println!("wrote {n} files to {}", out.display());
     Ok(())
 }
@@ -135,19 +135,19 @@ fn run() -> Result<bool> {
         "deploy" => {
             let spec = load(a.spec.as_deref())?;
             if a.demo {
-                return Ok(stream(&kw_exec::start_demo(&spec)));
+                return Ok(stream(&kw_exec::start_demo(spec.tofu_provider())));
             }
             let out = a.out.context("--out DIR is required")?;
             generate(&spec, &out)?;
-            let plan = kw_exec::plan_steps(&spec);
-            if !plan.is_empty() && !stream(&kw_exec::start(&out, &spec, plan)) {
+            let plan = kw_exec::plan_steps(spec.tofu_provider());
+            if !plan.is_empty() && !stream(&kw_exec::start(&out, spec.tofu_provider(), plan)) {
                 return Ok(false);
             }
             if !a.yes && !confirm("Apply changes to real servers?") {
                 println!("aborted");
                 return Ok(false);
             }
-            return Ok(stream(&kw_exec::start(&out, &spec, kw_exec::apply_steps(&spec))));
+            return Ok(stream(&kw_exec::start(&out, spec.tofu_provider(), kw_exec::apply_steps(spec.tofu_provider()))));
         }
         "upgrade-ha" => {
             let out = a.out.context("--out DIR is required")?;
@@ -156,7 +156,7 @@ fn run() -> Result<bool> {
                 bail!("edit cluster.yaml: set topology.ha=true, control_planes=3 and add the new nodes, or use the app's Upgrade to HA screen");
             }
             generate(&spec, &out)?;
-            return Ok(stream(&kw_exec::start(&out, &spec, &[Step::AnsibleDeps, Step::AnsibleUpgradeHa, Step::Smoke])));
+            return Ok(stream(&kw_exec::start(&out, spec.tofu_provider(), &[Step::AnsibleDeps, Step::AnsibleUpgradeHa, Step::Smoke])));
         }
         "prereq" => {
             let mut ok = true;

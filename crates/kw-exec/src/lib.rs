@@ -14,7 +14,7 @@ use std::sync::mpsc::{self, Receiver, SyncSender};
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use kw_core::{ClusterSpec, Provisioning, Target};
+use kw_core::CloudProvider;
 
 /// One deploy step = one external command.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -44,21 +44,18 @@ impl Step {
 
 /// Steps for a full deploy. Tofu plan is split so the UI can ask for
 /// confirmation between `plan_steps` and `apply_steps`.
-pub fn plan_steps(spec: &ClusterSpec) -> &'static [Step] {
-    if uses_tofu(spec) { &[Step::TofuInit, Step::TofuPlan] } else { &[] }
+///
+/// `tofu` is the provider OpenTofu provisions (`ClusterSpec::tofu_provider`).
+pub fn plan_steps(tofu: Option<CloudProvider>) -> &'static [Step] {
+    if tofu.is_some() { &[Step::TofuInit, Step::TofuPlan] } else { &[] }
 }
 
-pub fn apply_steps(spec: &ClusterSpec) -> &'static [Step] {
-    if uses_tofu(spec) {
+pub fn apply_steps(tofu: Option<CloudProvider>) -> &'static [Step] {
+    if tofu.is_some() {
         &[Step::TofuApply, Step::AnsibleDeps, Step::AnsibleSite, Step::Smoke]
     } else {
         &[Step::AnsibleDeps, Step::AnsibleSite, Step::Smoke]
     }
-}
-
-#[inline]
-pub fn uses_tofu(spec: &ClusterSpec) -> bool {
-    matches!(spec.target, Target::Cloud { provisioning: Provisioning::Tofu { .. }, .. })
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -108,12 +105,12 @@ pub fn wsl_path(p: &Path) -> String {
     }
 }
 
-fn command_for(step: Step, project: &Path, spec: &ClusterSpec) -> (&'static str, Command) {
+fn command_for(step: Step, project: &Path, tofu: Option<CloudProvider>) -> (&'static str, Command) {
     let ansible_dir = project.join("ansible");
-    let tofu_dir = match &spec.target {
-        Target::Cloud { provider, .. } => project.join("tofu").join(provider.id()),
-        Target::Baremetal => project.join("tofu"),
-    };
+    let mut tofu_dir = project.join("tofu");
+    if let Some(p) = tofu {
+        tofu_dir.push(p.id());
+    }
     let (program, dir, args): (&'static str, &Path, &[&str]) = match step {
         Step::TofuInit => ("tofu", &tofu_dir, &["init", "-input=false"]),
         Step::TofuPlan => ("tofu", &tofu_dir, &["plan", "-input=false", "-out=kw.plan"]),
@@ -170,16 +167,15 @@ impl Drop for Run {
 const CHANNEL_CAP: usize = 1024;
 
 /// Starts `steps` sequentially in a background thread.
-pub fn start(project: &Path, spec: &ClusterSpec, steps: &[Step]) -> Run {
+pub fn start(project: &Path, tofu: Option<CloudProvider>, steps: &[Step]) -> Run {
     let (tx, rx) = mpsc::sync_channel(CHANNEL_CAP);
     let cancel = Arc::new(AtomicBool::new(false));
     let flag = Arc::clone(&cancel);
     let project = project.to_path_buf();
-    let spec = spec.clone();
     let steps = steps.to_vec();
     let thread = thread::Builder::new()
         .name("kw-pipeline".to_owned())
-        .spawn(move || run_steps(&project, &spec, &steps, &tx, &flag))
+        .spawn(move || run_steps(&project, tofu, &steps, &tx, &flag))
         .ok();
     Run { events: rx, cancel, thread }
 }
@@ -193,7 +189,7 @@ fn open_log(project: &Path) -> Option<(PathBuf, BufWriter<File>)> {
     Some((path, BufWriter::new(file)))
 }
 
-fn run_steps(project: &Path, spec: &ClusterSpec, steps: &[Step], tx: &SyncSender<Event>, cancel: &AtomicBool) {
+fn run_steps(project: &Path, tofu: Option<CloudProvider>, steps: &[Step], tx: &SyncSender<Event>, cancel: &AtomicBool) {
     let mut log = open_log(project);
     let mut failed = None;
     for &step in steps {
@@ -202,7 +198,7 @@ fn run_steps(project: &Path, spec: &ClusterSpec, steps: &[Step], tx: &SyncSender
         }
         let _ = tx.send(Event::StepStarted(step));
         let started = Instant::now();
-        let ok = match run_one(step, project, spec, tx, cancel, log.as_mut().map(|l| &mut l.1)) {
+        let ok = match run_one(step, project, tofu, tx, cancel, log.as_mut().map(|l| &mut l.1)) {
             Ok(ok) => ok,
             Err(e) => {
                 let _ = tx.send(Event::Line { step, stream: Stream::Stderr, text: e.to_string() });
@@ -236,12 +232,12 @@ fn pump(reader: impl std::io::Read + Send + 'static, stream: Stream, tx: mpsc::S
 fn run_one(
     step: Step,
     project: &Path,
-    spec: &ClusterSpec,
+    tofu: Option<CloudProvider>,
     tx: &SyncSender<Event>,
     cancel: &AtomicBool,
     mut log: Option<&mut BufWriter<File>>,
 ) -> Result<bool, ExecError> {
-    let (program, mut cmd) = command_for(step, project, spec);
+    let (program, mut cmd) = command_for(step, project, tofu);
     let mut child: Child = cmd.spawn().map_err(|source| ExecError::Spawn { program, source })?;
 
     let (ltx, lrx) = mpsc::channel();
@@ -284,12 +280,12 @@ fn run_one(
 }
 
 /// Simulated run for demo mode / onboarding — no servers touched.
-pub fn start_demo(spec: &ClusterSpec) -> Run {
+pub fn start_demo(tofu: Option<CloudProvider>) -> Run {
     let (tx, rx) = mpsc::sync_channel(CHANNEL_CAP);
     let cancel = Arc::new(AtomicBool::new(false));
     let flag = Arc::clone(&cancel);
-    let mut steps: Vec<Step> = plan_steps(spec).to_vec();
-    steps.extend_from_slice(apply_steps(spec));
+    let mut steps: Vec<Step> = plan_steps(tofu).to_vec();
+    steps.extend_from_slice(apply_steps(tofu));
     let thread = thread::Builder::new()
         .name("kw-demo".to_owned())
         .spawn(move || {
@@ -329,21 +325,27 @@ mod tests {
     }
 
     #[test]
+    fn tofu_steps_follow_provider() {
+        assert_eq!(plan_steps(None), &[] as &[Step]);
+        assert_eq!(plan_steps(Some(CloudProvider::Aws)), &[Step::TofuInit, Step::TofuPlan]);
+        let (_, cmd) = command_for(Step::TofuPlan, Path::new("/p"), Some(CloudProvider::Gcp));
+        assert_eq!(cmd.get_current_dir(), Some(Path::new("/p/tofu/gcp")));
+    }
+
+    #[test]
     fn demo_run_completes() {
-        let spec = kw_core::presets::Preset::DevLocal.build();
-        let run = start_demo(&spec);
+        let run = start_demo(None);
         let last = run.events.iter().last();
         assert!(matches!(last, Some(Event::Done { failed: None, .. })));
     }
 
     #[test]
     fn missing_program_reports_failure() {
-        let spec = kw_core::presets::Preset::DevLocal.build();
         let dir = std::env::temp_dir().join("kw-exec-test");
         let _ = fs::create_dir_all(dir.join("ansible"));
         // Smoke runs kubectl; force failure via missing kubeconfig is env dependent,
         // so only assert we get a Done event.
-        let run = start(&dir, &spec, &[Step::Smoke]);
+        let run = start(&dir, None, &[Step::Smoke]);
         assert!(run.events.iter().any(|e| matches!(e, Event::Done { .. })));
     }
 }
