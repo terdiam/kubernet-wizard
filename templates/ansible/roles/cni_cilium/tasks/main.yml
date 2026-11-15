@@ -1,0 +1,11 @@
+- name: Install Cilium
+  ansible.builtin.include_role:
+    name: helm_bootstrap
+    tasks_from: release.yml
+  vars:
+    rel:
+      name: cilium
+      repo: https://helm.cilium.io
+      chart: cilium
+      namespace: kube-system
+      values: "{{ kw_cilium_values }}"

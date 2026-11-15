@@ -1,0 +1,69 @@
+name: homelab
+target:
+  kind: baremetal
+distro:
+  id: k3s
+  version: v1.34.2+k3s1
+topology:
+  ha: true
+  control_planes: 3
+  workers: 2
+  os: ubuntu2404
+  nodes:
+  - name: cp-1
+    address: 192.168.1.11
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: cp-2
+    address: 192.168.1.12
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: cp-3
+    address: 192.168.1.13
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: worker-1
+    address: 192.168.1.21
+    role: worker
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: worker-2
+    address: 192.168.1.22
+    role: worker
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+endpoint:
+  mode: kube_vip
+  vip: 192.168.1.100
+  interface: eth0
+  dns_name: null
+  port: 6443
+service_lb:
+  kind: metallb
+  advertisement: l2
+  pool: 192.168.1.240-192.168.1.250
+network:
+  cni: cilium
+  pod_cidr: 10.42.0.0/16
+  service_cidr: 10.43.0.0/16
+  node_cidr: 192.168.1.0/24
+  cluster_domain: cluster.local
+  kube_proxy: iptables
+  mtu: null
+  dual_stack: false
+ingress: traefik
+addons:
+- metrics_server
+- local_path
+- cert_manager
+gitops:
+  tool: none
+  repo_url: ''
+  branch: ''
+  path: ''
+tuning:
+  profile: minimal
+  node_memory_gib: 4

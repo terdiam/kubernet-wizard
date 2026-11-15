@@ -1,0 +1,15 @@
+[package]
+name = "kw-core"
+description = "Cluster spec model, validation and planning for kubernet-wizard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_yaml.workspace = true
+thiserror.workspace = true
+ipnet.workspace = true
+
+[lints]
+workspace = true

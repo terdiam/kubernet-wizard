@@ -1,0 +1,14 @@
+kw_kube_vip_image: ghcr.io/kube-vip/kube-vip:v0.9.2
+kw_kube_vip_env:
+  - { name: vip_arp, value: "true" }
+  - { name: port, value: "{{ kw_api_port | string }}" }
+  - { name: vip_interface, value: "{{ kw_vip_interface | default('', true) }}" }
+  - { name: vip_subnet, value: "32" }
+  - { name: cp_enable, value: "true" }
+  - { name: cp_namespace, value: kube-system }
+  - { name: vip_leaderelection, value: "true" }
+  - { name: vip_leaseduration, value: "5" }
+  - { name: vip_renewdeadline, value: "3" }
+  - { name: vip_retryperiod, value: "1" }
+  - { name: svc_enable, value: "{{ 'true' if kw_service_lb == 'kube_vip' else 'false' }}" }
+  - { name: address, value: "{{ kw_vip }}" }

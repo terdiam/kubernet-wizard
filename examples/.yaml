@@ -1,0 +1,48 @@
+name: dev
+target:
+  kind: baremetal
+distro:
+  id: k3s
+  version: v1.34.2+k3s1
+topology:
+  ha: false
+  control_planes: 1
+  workers: 0
+  os: ubuntu2404
+  nodes:
+  - name: cp-1
+    address: 192.168.1.11
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+endpoint:
+  mode: kube_vip
+  vip: 192.168.1.100
+  interface: eth0
+  dns_name: null
+  port: 6443
+service_lb:
+  kind: none
+  advertisement: l2
+  pool: null
+network:
+  cni: flannel
+  pod_cidr: 10.42.0.0/16
+  service_cidr: 10.43.0.0/16
+  node_cidr: 192.168.1.0/24
+  cluster_domain: cluster.local
+  kube_proxy: iptables
+  mtu: null
+  dual_stack: false
+ingress: traefik
+addons:
+- metrics_server
+- local_path
+gitops:
+  tool: none
+  repo_url: ''
+  branch: ''
+  path: ''
+tuning:
+  profile: minimal
+  node_memory_gib: 4

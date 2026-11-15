@@ -1,0 +1,60 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+
+[workspace.dependencies]
+kw-core = { path = "crates/kw-core" }
+kw-distro = { path = "crates/kw-distro" }
+kw-render = { path = "crates/kw-render" }
+kw-exec = { path = "crates/kw-exec" }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+ipnet = { version = "2", features = ["serde"] }
+smallvec = { version = "1", features = ["serde", "union"] }
+minijinja = { version = "2", default-features = false, features = ["builtins", "serde", "macros", "multi_template", "loader"] }
+rust-embed = "8"
+directories = "6"
+insta = { version = "1", features = ["yaml"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+clone_on_ref_ptr = "warn"
+redundant_clone = "warn"
+needless_pass_by_value = "warn"
+module_name_repetitions = "allow"
+missing_errors_doc = "allow"
+must_use_candidate = "allow"
+doc_markdown = "allow"
+
+[profile.dev]
+debug = "line-tables-only"
+incremental = true
+
+[profile.dev.package."*"]
+debug = false
+opt-level = 1
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[profile.dist]
+inherits = "release"
+lto = "fat"

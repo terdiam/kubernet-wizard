@@ -1,0 +1,22 @@
+[package]
+name = "kw-render"
+description = "Renders OpenTofu, Ansible and GitOps projects from a ClusterSpec"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+kw-core.workspace = true
+kw-distro.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+smallvec.workspace = true
+minijinja = { workspace = true, features = ["json"] }
+rust-embed.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,58 @@
+# Managed by kubernet-wizard
+{% if kw_role == 'server' %}
+{% if kw_first_cp | default(false) %}
+cluster-init: true
+{% else %}
+server: https://{{ kw_endpoint_host }}:{{ kw_api_port }}
+{% endif %}
+token: "{{ kw_token }}"
+tls-san:
+{% for s in kw_tls_sans %}
+  - "{{ s }}"
+{% endfor %}
+cluster-cidr: "{{ kw_pod_cidr }}"
+service-cidr: "{{ kw_service_cidr }}"
+cluster-dns: "{{ kw_cluster_dns }}"
+cluster-domain: "{{ kw_cluster_domain }}"
+write-kubeconfig-mode: "0600"
+{% if kw_cni != 'flannel' %}
+flannel-backend: none
+disable-network-policy: true
+{% endif %}
+{% if kw_kube_proxy == 'none' %}
+disable-kube-proxy: true
+{% endif %}
+disable:
+  - servicelb
+  - metrics-server
+{% if kw_ingress != 'traefik' %}
+  - traefik
+{% endif %}
+{% if 'local-path' not in (kw_addons | map(attribute='id') | list) %}
+  - local-storage
+{% endif %}
+{% if kw_workers_count | int > 0 %}
+node-taint:
+  - "node-role.kubernetes.io/control-plane:NoSchedule"
+{% endif %}
+etcd-arg:
+  - "quota-backend-bytes=4294967296"
+{% else %}
+server: https://{{ kw_endpoint_host }}:{{ kw_api_port }}
+token: "{{ kw_token }}"
+{% endif %}
+{% if kw_kube_proxy in ['ipvs', 'nftables'] %}
+kube-proxy-arg:
+  - "proxy-mode={{ kw_kube_proxy }}"
+{% endif %}
+kubelet-arg:
+  - "system-reserved={{ kw_kubelet.system_reserved }}"
+  - "kube-reserved={{ kw_kubelet.kube_reserved }}"
+  - "eviction-hard={{ kw_kubelet.eviction_hard }}"
+  - "max-pods={{ kw_kubelet.max_pods }}"
+  - "image-gc-high-threshold={{ kw_kubelet.image_gc_high }}"
+  - "image-gc-low-threshold={{ kw_kubelet.image_gc_low }}"
+  - "serialize-image-pulls=false"
+{% if kw_kubelet.cpu_manager_policy == 'static' %}
+  - "cpu-manager-policy=static"
+{% endif %}

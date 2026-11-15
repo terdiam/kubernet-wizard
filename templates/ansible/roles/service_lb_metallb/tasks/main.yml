@@ -1,0 +1,34 @@
+- name: Install MetalLB
+  ansible.builtin.include_role:
+    name: helm_bootstrap
+    tasks_from: release.yml
+  vars:
+    rel:
+      name: metallb
+      repo: https://metallb.github.io/metallb
+      chart: metallb
+      namespace: metallb-system
+      values: ["speaker.frr.enabled={{ 'true' if kw_lb_advertisement == 'bgp' else 'false' }}"]
+
+- name: Address pool + advertisement
+  ansible.builtin.copy:
+    dest: /root/kw-metallb-pool.yaml
+    mode: "0600"
+    content: |
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata: { name: default, namespace: metallb-system }
+      spec:
+        addresses: ["{{ kw_lb_pool }}"]
+      ---
+      apiVersion: metallb.io/v1beta1
+      kind: {{ 'BGPAdvertisement' if kw_lb_advertisement == 'bgp' else 'L2Advertisement' }}
+      metadata: { name: default, namespace: metallb-system }
+      spec:
+        ipAddressPools: [default]
+      # BGP: add a BGPPeer for your router, see docs://endpoint#metallb-bgp
+
+- name: Apply pool
+  ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply -f /root/kw-metallb-pool.yaml"
+  register: kw_apply
+  changed_when: "'configured' in kw_apply.stdout or 'created' in kw_apply.stdout"

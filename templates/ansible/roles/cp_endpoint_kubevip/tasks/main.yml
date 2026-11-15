@@ -1,0 +1,37 @@
+- name: Node already joined?
+  ansible.builtin.stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kw_vip_joined
+
+- name: kube-vip static pod (kubeadm)
+  when: kw_static_pods_dir | length > 0
+  block:
+    - name: Static pod dir
+      ansible.builtin.file:
+        path: "{{ kw_static_pods_dir }}"
+        state: directory
+        mode: "0755"
+    - name: kube-vip manifest
+      ansible.builtin.template:
+        src: kube-vip-static.yaml.j2
+        dest: "{{ kw_static_pods_dir }}/kube-vip.yaml"
+        mode: "0600"
+
+- name: kube-vip DaemonSet (auto-deploy manifests dir)
+  when: kw_static_pods_dir | length == 0
+  block:
+    - name: Manifests dir
+      ansible.builtin.file:
+        path: "{{ kw_manifests_dir }}"
+        state: directory
+        mode: "0755"
+    - name: kube-vip manifest
+      ansible.builtin.template:
+        src: kube-vip-ds.yaml.j2
+        dest: "{{ kw_manifests_dir }}/kube-vip.yaml"
+        mode: "0600"
+    - name: Wait for VIP to answer
+      ansible.builtin.wait_for:
+        host: "{{ kw_vip }}"
+        port: "{{ kw_api_port }}"
+        timeout: 300

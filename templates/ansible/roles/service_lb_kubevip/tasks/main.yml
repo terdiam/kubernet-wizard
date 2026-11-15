@@ -1,0 +1,16 @@
+- name: kube-vip cloud provider
+  ansible.builtin.command: >-
+    {{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply -f
+    https://raw.githubusercontent.com/kube-vip/kube-vip-cloud-provider/main/manifest/kube-vip-cloud-controller.yaml
+  register: kw_apply
+  changed_when: "'created' in kw_apply.stdout"
+
+- name: Address range
+  ansible.builtin.shell: |
+    set -o pipefail
+    {{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} -n kube-system create configmap kubevip \
+      --from-literal=range-global={{ kw_lb_pool }} --dry-run=client -o yaml \
+      | {{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply -f -
+  args:
+    executable: /bin/bash
+  changed_when: false

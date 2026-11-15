@@ -1,0 +1,53 @@
+- name: Install containerd (Debian family)
+  ansible.builtin.apt:
+    name: containerd
+    state: present
+  when: kw_os_family == "debian"
+
+- name: Docker CE repo (RedHat family, provides containerd.io)
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: "0644"
+  when: kw_os_family == "redhat"
+
+- name: Install containerd (RedHat family)
+  ansible.builtin.dnf:
+    name: containerd.io
+    state: present
+  when: kw_os_family == "redhat"
+
+- name: Config directory
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: "0755"
+
+- name: Generate default config
+  ansible.builtin.shell: containerd config default > /etc/containerd/config.toml
+  args:
+    creates: /etc/containerd/kw-configured
+
+- name: Use systemd cgroup driver and parallel pulls
+  ansible.builtin.replace:
+    path: /etc/containerd/config.toml
+    regexp: "{{ item.re }}"
+    replace: "{{ item.to }}"
+  loop:
+    - { re: 'SystemdCgroup = false', to: 'SystemdCgroup = true' }
+    - { re: 'max_concurrent_downloads = \d+', to: 'max_concurrent_downloads = 6' }
+  notify: Restart containerd
+
+- name: Mark configured
+  ansible.builtin.file:
+    path: /etc/containerd/kw-configured
+    state: touch
+    modification_time: preserve
+    access_time: preserve
+    mode: "0644"
+
+- name: Enable containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: started
+    enabled: true

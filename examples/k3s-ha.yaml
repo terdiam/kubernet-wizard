@@ -1,0 +1,76 @@
+name: prod
+target:
+  kind: baremetal
+distro:
+  id: kubeadm
+  version: v1.34.2
+topology:
+  ha: true
+  control_planes: 3
+  workers: 3
+  os: ubuntu2404
+  nodes:
+  - name: cp-1
+    address: 192.168.1.11
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: cp-2
+    address: 192.168.1.12
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: cp-3
+    address: 192.168.1.13
+    role: control_plane
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: worker-1
+    address: 192.168.1.21
+    role: worker
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: worker-2
+    address: 192.168.1.22
+    role: worker
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+  - name: worker-3
+    address: 192.168.1.23
+    role: worker
+    ssh_user: root
+    ssh_key: ~/.ssh/id_ed25519
+endpoint:
+  mode: kube_vip
+  vip: 192.168.1.100
+  interface: eth0
+  dns_name: null
+  port: 6443
+service_lb:
+  kind: metallb
+  advertisement: l2
+  pool: 192.168.1.240-192.168.1.250
+network:
+  cni: cilium
+  pod_cidr: 10.42.0.0/16
+  service_cidr: 10.43.0.0/16
+  node_cidr: 192.168.1.0/24
+  cluster_domain: cluster.local
+  kube_proxy: none
+  mtu: null
+  dual_stack: false
+ingress: envoy_gateway
+addons:
+- metrics_server
+- cert_manager
+- longhorn
+- victoria_metrics
+- velero
+gitops:
+  tool: argo_cd
+  repo_url: git@github.com:example/prod-gitops.git
+  branch: main
+  path: clusters/prod
+tuning:
+  profile: balanced
+  node_memory_gib: 16

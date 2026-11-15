@@ -1,0 +1,13 @@
+kw_cilium_values: >-
+  {{ [
+    'ipam.mode=kubernetes',
+    'kubeProxyReplacement=' ~ ('true' if kw_kube_proxy == 'none' else 'false'),
+    'k8sServiceHost=' ~ kw_endpoint_host,
+    'k8sServicePort=' ~ kw_api_port,
+    'operator.replicas=' ~ ('2' if kw_ha else '1'),
+    'hubble.enabled=' ~ ('false' if kw_tuning_profile == 'minimal' else 'true'),
+    'hubble.relay.enabled=false',
+    'gatewayAPI.enabled=' ~ ('true' if kw_ingress == 'cilium_gateway' else 'false'),
+    'bpf.masquerade=' ~ ('true' if kw_kube_proxy == 'none' else 'false'),
+    'resources.requests.memory=128Mi'
+  ] + (['MTU=' ~ kw_mtu] if kw_mtu | int > 0 else []) }}

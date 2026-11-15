@@ -1,0 +1,67 @@
+- name: Role of this node
+  ansible.builtin.set_fact:
+    kw_role: "{{ 'server' if inventory_hostname in groups['control_plane'] else 'agent' }}"
+
+- name: Generate cluster token on first server
+  ansible.builtin.shell: |
+    set -o pipefail
+    umask 077; mkdir -p /etc/rancher/rke2
+    head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1 > /etc/rancher/rke2/kw-token
+  args:
+    executable: /bin/bash
+    creates: /etc/rancher/rke2/kw-token
+  when: kw_first_cp | default(false)
+
+- name: Read cluster token from first server
+  ansible.builtin.slurp:
+    src: /etc/rancher/rke2/kw-token
+  register: kw_token_raw
+  delegate_to: "{{ groups['control_plane'][0] }}"
+
+- name: Token fact
+  ansible.builtin.set_fact:
+    kw_token: "{{ kw_token_raw.content | b64decode | trim }}"
+  no_log: true
+
+- name: Config directory
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    state: directory
+    mode: "0700"
+
+- name: rke2 config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/rke2/config.yaml
+    mode: "0600"
+
+- name: Install rke2
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="{{ kw_version }}" INSTALL_RKE2_TYPE="{{ kw_role }}" sh -
+  args:
+    executable: /bin/bash
+    creates: /usr/bin/rke2
+
+- name: Start rke2
+  ansible.builtin.systemd:
+    name: "rke2-{{ kw_role }}"
+    state: started
+    enabled: true
+
+- name: kubectl symlink
+  ansible.builtin.file:
+    src: /var/lib/rancher/rke2/bin/kubectl
+    dest: /usr/local/bin/kubectl
+    state: link
+    force: true
+  when: kw_role == 'server'
+
+- name: Wait for node to register
+  ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} get node {{ ansible_hostname }}"
+  register: kw_reg
+  until: kw_reg.rc == 0
+  retries: 90
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ groups['control_plane'][0] }}"

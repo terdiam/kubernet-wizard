@@ -1,0 +1,14 @@
+- name: Gateway API CRDs
+  ansible.builtin.command: >-
+    {{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply --server-side -f
+    https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
+  when: kw_ingress_chart.gateway_api | default(false)
+  changed_when: false
+
+- name: Ingress / Gateway controller
+  ansible.builtin.include_role:
+    name: helm_bootstrap
+    tasks_from: release.yml
+  vars:
+    rel: "{{ kw_ingress_chart }}"
+  when: kw_ingress_chart.chart | default('') | length > 0

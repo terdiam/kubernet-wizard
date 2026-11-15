@@ -1,0 +1,21 @@
+[package]
+name = "kw-cli"
+description = "Headless CLI for kubernet-wizard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "kw"
+path = "src/main.rs"
+
+[dependencies]
+kw-core.workspace = true
+kw-distro.workspace = true
+kw-render.workspace = true
+kw-exec.workspace = true
+anyhow.workspace = true
+lexopt = "0.3"
+
+[lints]
+workspace = true

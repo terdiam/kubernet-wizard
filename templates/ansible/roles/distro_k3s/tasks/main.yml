@@ -1,0 +1,54 @@
+- name: Role of this node
+  ansible.builtin.set_fact:
+    kw_role: "{{ 'server' if inventory_hostname in groups['control_plane'] else 'agent' }}"
+
+- name: Generate cluster token on first server
+  ansible.builtin.shell: |
+    set -o pipefail
+    test -f /etc/rancher/k3s/kw-token || (umask 077; mkdir -p /etc/rancher/k3s; head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1 > /etc/rancher/k3s/kw-token)
+  args:
+    executable: /bin/bash
+    creates: /etc/rancher/k3s/kw-token
+  when: kw_first_cp | default(false)
+
+- name: Read cluster token from first server
+  ansible.builtin.slurp:
+    src: /etc/rancher/k3s/kw-token
+  register: kw_token_raw
+  delegate_to: "{{ groups['control_plane'][0] }}"
+
+- name: Token fact
+  ansible.builtin.set_fact:
+    kw_token: "{{ kw_token_raw.content | b64decode | trim }}"
+  no_log: true
+
+- name: Config directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: "0700"
+
+- name: k3s config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    mode: "0600"
+
+- name: Install k3s
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ kw_version }}" INSTALL_K3S_EXEC="{{ kw_role }}" sh -
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/k3s
+  environment:
+    INSTALL_K3S_SKIP_START: "false"
+
+- name: Wait for node to register
+  ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} get node {{ ansible_hostname }}"
+  register: kw_reg
+  until: kw_reg.rc == 0
+  retries: 60
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ groups['control_plane'][0] }}"

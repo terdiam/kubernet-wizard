@@ -1,0 +1,61 @@
+# Performance + low footprint tuning. Values come from kw_sysctl / kw_kubelet
+# computed by kubernet-wizard per profile (minimal | balanced | throughput).
+- name: Tuning sysctl
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: /etc/sysctl.d/95-kw-tuning.conf
+    reload: true
+  loop: "{{ kw_sysctl | dict2items }}"
+
+- name: Raise open file limits
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/90-kw.conf
+    content: |
+      * soft nofile 1048576
+      * hard nofile 1048576
+    mode: "0644"
+
+- name: Transparent huge pages = madvise (avoid latency spikes, keep RAM low)
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/kw-thp.service
+    content: |
+      [Unit]
+      Description=Set THP to madvise
+      After=sysinit.target
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/sh -c 'echo madvise > /sys/kernel/mm/transparent_hugepage/enabled; echo defer+madvise > /sys/kernel/mm/transparent_hugepage/defrag'
+      [Install]
+      WantedBy=multi-user.target
+    mode: "0644"
+  notify: Enable kw-thp
+
+- name: Cap journald disk and memory usage
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/90-kw.conf
+    content: |
+      [Journal]
+      SystemMaxUse=200M
+      RuntimeMaxUse=50M
+      Compress=yes
+    mode: "0644"
+  notify: Restart journald
+
+- name: Disable services not needed on Kubernetes nodes
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ kw_disable_services }}"
+  failed_when: false
+
+- name: CPU governor performance (throughput profile)
+  ansible.builtin.shell: |
+    set -o pipefail
+    for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do echo performance > "$g"; done
+  args:
+    executable: /bin/bash
+  when: kw_tuning_profile == "throughput"
+  changed_when: false
+  failed_when: false

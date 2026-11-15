@@ -1,0 +1,61 @@
+# Managed by kubernet-wizard
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: unix:///run/containerd/containerd.sock
+{% if kw_workers_count | int == 0 %}
+  taints: []
+{% endif %}
+{% if kw_kube_proxy == 'none' %}
+skipPhases:
+  - addon/kube-proxy
+{% endif %}
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: ClusterConfiguration
+kubernetesVersion: "{{ kw_version }}"
+clusterName: "{{ kw_cluster_name }}"
+controlPlaneEndpoint: "{{ kw_endpoint_host }}:{{ kw_api_port }}"
+networking:
+  podSubnet: "{{ kw_pod_cidr }}"
+  serviceSubnet: "{{ kw_service_cidr }}"
+  dnsDomain: "{{ kw_cluster_domain }}"
+apiServer:
+  certSANs:
+{% for s in kw_tls_sans %}
+    - "{{ s }}"
+{% endfor %}
+etcd:
+  local:
+    extraArgs:
+      - name: quota-backend-bytes
+        value: "4294967296"
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: systemd
+clusterDNS: ["{{ kw_cluster_dns }}"]
+clusterDomain: "{{ kw_cluster_domain }}"
+maxPods: {{ kw_kubelet.max_pods }}
+serializeImagePulls: false
+imageGCHighThresholdPercent: {{ kw_kubelet.image_gc_high }}
+imageGCLowThresholdPercent: {{ kw_kubelet.image_gc_low }}
+cpuManagerPolicy: {{ kw_kubelet.cpu_manager_policy }}
+systemReserved:
+{% for kv in kw_kubelet.system_reserved.split(',') %}
+  {{ kv.split('=')[0] }}: "{{ kv.split('=')[1] }}"
+{% endfor %}
+kubeReserved:
+{% for kv in kw_kubelet.kube_reserved.split(',') %}
+  {{ kv.split('=')[0] }}: "{{ kv.split('=')[1] }}"
+{% endfor %}
+evictionHard:
+{% for kv in kw_kubelet.eviction_hard.split(',') %}
+  {{ kv.split('<')[0] }}: "{{ kv.split('<')[1] }}"
+{% endfor %}
+{% if kw_kube_proxy in ['ipvs', 'nftables', 'iptables'] %}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: "{{ kw_kube_proxy }}"
+{% endif %}

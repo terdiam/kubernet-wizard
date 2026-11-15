@@ -1,0 +1,35 @@
+- name: Install Flux controllers
+  ansible.builtin.command: >-
+    {{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply -f
+    https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
+  changed_when: false
+
+- name: Source + Kustomization
+  ansible.builtin.copy:
+    dest: /root/kw-flux-root.yaml
+    mode: "0600"
+    content: |
+      apiVersion: source.toolkit.fluxcd.io/v1
+      kind: GitRepository
+      metadata: { name: flux-system, namespace: flux-system }
+      spec:
+        interval: 1m
+        url: "{{ kw_gitops_repo }}"
+        ref: { branch: "{{ kw_gitops_branch }}" }
+      ---
+      apiVersion: kustomize.toolkit.fluxcd.io/v1
+      kind: Kustomization
+      metadata: { name: flux-system, namespace: flux-system }
+      spec:
+        interval: 10m
+        path: "./{{ kw_gitops_path }}"
+        prune: true
+        sourceRef: { kind: GitRepository, name: flux-system }
+
+- name: Apply Flux root
+  ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply -f /root/kw-flux-root.yaml"
+  register: kw_flux
+  until: kw_flux.rc == 0
+  retries: 12
+  delay: 10
+  changed_when: false

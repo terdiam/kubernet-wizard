@@ -1,0 +1,24 @@
+[package]
+name = "kw-app"
+description = "kubernet-wizard desktop app (GPUI)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "kubernet-wizard"
+path = "src/main.rs"
+
+[dependencies]
+kw-core.workspace = true
+kw-distro.workspace = true
+kw-render.workspace = true
+kw-exec.workspace = true
+serde.workspace = true
+serde_yaml.workspace = true
+smallvec.workspace = true
+directories.workspace = true
+gpui-kit = "0.9.1"
+
+[lints]
+workspace = true

@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: kube-vip, namespace: kube-system }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: { name: system:kube-vip-role }
+rules:
+  - apiGroups: [""]
+    resources: [services/status]
+    verbs: [update]
+  - apiGroups: [""]
+    resources: [services, endpoints]
+    verbs: [list, get, watch, update]
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [list, get, watch, update, patch]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    verbs: [list, get, watch, update, create]
+  - apiGroups: [discovery.k8s.io]
+    resources: [endpointslices]
+    verbs: [list, get, watch, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: { name: system:kube-vip-binding }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: system:kube-vip-role }
+subjects:
+  - { kind: ServiceAccount, name: kube-vip, namespace: kube-system }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata: { name: kube-vip, namespace: kube-system }
+spec:
+  selector: { matchLabels: { app: kube-vip } }
+  template:
+    metadata: { labels: { app: kube-vip } }
+    spec:
+      serviceAccountName: kube-vip
+      hostNetwork: true
+      nodeSelector: { node-role.kubernetes.io/control-plane: "true" }
+      tolerations:
+        - { operator: Exists, effect: NoSchedule }
+        - { operator: Exists, effect: NoExecute }
+      containers:
+        - name: kube-vip
+          image: {{ kw_kube_vip_image }}
+          args: ["manager"]
+          env: {{ kw_kube_vip_env | to_json }}
+          securityContext:
+            capabilities:
+              add: [NET_ADMIN, NET_RAW]
+          resources:
+            requests: { cpu: 10m, memory: 24Mi }
+            limits: { memory: 64Mi }

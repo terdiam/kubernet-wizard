@@ -1,0 +1,4 @@
+[build]
+# keep artefacts lean; clean old builds with: cargo sweep --time 7
+[term]
+color = "auto"

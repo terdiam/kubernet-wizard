@@ -1,0 +1,13 @@
+[package]
+name = "kw-exec"
+description = "Prerequisite checks and OpenTofu/Ansible pipeline runner for kubernet-wizard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+kw-core.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

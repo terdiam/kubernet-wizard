@@ -1,0 +1,31 @@
+- name: Install keepalived and haproxy
+  ansible.builtin.package:
+    name: [keepalived, haproxy, psmisc]
+    state: present
+
+- name: Allow binding VIP before it is local
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: "1"
+    sysctl_file: /etc/sysctl.d/90-kw-keepalived.conf
+
+- name: haproxy config
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: "0644"
+  notify: Restart haproxy
+
+- name: keepalived config
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: "0600"
+  notify: Restart keepalived
+
+- name: Enable services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop: [haproxy, keepalived]

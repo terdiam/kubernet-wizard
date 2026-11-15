@@ -1,0 +1,15 @@
+- name: Install Tigera operator
+  ansible.builtin.include_role:
+    name: helm_bootstrap
+    tasks_from: release.yml
+  vars:
+    rel:
+      name: calico
+      repo: https://docs.tigera.io/calico/charts
+      chart: tigera-operator
+      namespace: tigera-operator
+      values:
+        - "installation.calicoNetwork.ipPools[0].cidr={{ kw_pod_cidr }}"
+        - "installation.calicoNetwork.ipPools[0].encapsulation=VXLANCrossSubnet"
+        - "installation.calicoNetwork.bgp=Disabled"
+        - "installation.calicoNetwork.mtu={{ kw_mtu if kw_mtu | int > 0 else 0 }}"

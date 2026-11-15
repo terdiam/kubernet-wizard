@@ -1,0 +1,18 @@
+global
+  maxconn 4000
+  log stdout format raw local0
+defaults
+  mode tcp
+  timeout connect 5s
+  timeout client 1h
+  timeout server 1h
+frontend kube_api
+  bind *:{{ kw_api_port }}
+  default_backend kube_api_servers
+backend kube_api_servers
+  option httpchk GET /readyz
+  http-check expect status 200
+  balance roundrobin
+{% for h in groups['control_plane'] %}
+  server {{ h }} {{ hostvars[h].ansible_host }}:6443 check check-ssl verify none inter 3s fall 3 rise 2
+{% endfor %}

@@ -1,0 +1,24 @@
+- name: Read admin kubeconfig
+  ansible.builtin.slurp:
+    src: "{{ kw_kubeconfig }}"
+  register: kw_kc
+
+- name: Write kubeconfig next to playbook, pointing at stable endpoint
+  ansible.builtin.copy:
+    dest: "{{ playbook_dir }}/../kubeconfig"
+    content: >-
+      {{ kw_kc.content | b64decode
+         | regex_replace('server: https://[^\n]+', 'server: https://' ~ kw_endpoint_host ~ ':' ~ kw_api_port)
+         | regex_replace('name: default', 'name: ' ~ kw_cluster_name) }}
+    mode: "0600"
+  delegate_to: localhost
+  become: false
+
+- name: Smoke test
+  ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} get nodes -o wide"
+  register: kw_nodes
+  changed_when: false
+
+- name: Nodes
+  ansible.builtin.debug:
+    var: kw_nodes.stdout_lines

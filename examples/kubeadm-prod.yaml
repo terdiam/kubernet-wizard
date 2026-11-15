@@ -1,0 +1,50 @@
+name: cloud
+target:
+  kind: cloud
+  provider: hetzner
+  provisioning:
+    mode: tofu
+    region: fsn1
+    cp_size: cpx21
+    worker_size: cpx31
+    image: ubuntu-24.04
+distro:
+  id: rke2
+  version: v1.34.2+rke2r1
+topology:
+  ha: true
+  control_planes: 3
+  workers: 2
+  os: ubuntu2404
+  nodes: []
+endpoint:
+  mode: cloud_lb
+  vip: null
+  interface: null
+  dns_name: null
+  port: 6443
+service_lb:
+  kind: cloud_ccm
+  advertisement: l2
+  pool: null
+network:
+  cni: canal
+  pod_cidr: 10.42.0.0/16
+  service_cidr: 10.43.0.0/16
+  node_cidr: 10.0.0.0/16
+  cluster_domain: cluster.local
+  kube_proxy: iptables
+  mtu: null
+  dual_stack: false
+ingress: traefik
+addons:
+- metrics_server
+- local_path
+gitops:
+  tool: none
+  repo_url: ''
+  branch: ''
+  path: ''
+tuning:
+  profile: minimal
+  node_memory_gib: 4

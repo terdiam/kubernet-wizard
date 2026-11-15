@@ -1,0 +1,42 @@
+//! kubernet-wizard desktop app.
+#![recursion_limit = "512"]
+// GPUI idioms: `use gpui_kit::*` prelude, builder closures, render helpers on views.
+#![allow(
+    clippy::wildcard_imports,
+    clippy::unused_self,
+    clippy::too_many_lines,
+    clippy::match_same_arms,
+    clippy::redundant_closure_for_method_calls
+)]
+
+mod app;
+mod docs;
+mod help;
+mod i18n;
+mod onboarding;
+mod settings;
+mod wizard;
+
+use gpui_kit::component::Theme;
+use gpui_kit::*;
+
+fn main() {
+    gpui_kit::application().with_assets(gpui_kit::assets::Assets).run(|cx| {
+        gpui_kit::init(cx);
+        cx.set_global(settings::Ui { prefs: settings::load(), tour: None });
+
+        let options = WindowOptions {
+            window_bounds: Some(WindowBounds::centered(size(px(1280.), px(820.)), cx)),
+            titlebar: Some(TitlebarOptions { title: Some("kubernet-wizard".into()), ..Default::default() }),
+            ..Default::default()
+        };
+        let opened = gpui_kit::open_window(options, cx, |window, cx| {
+            Theme::sync_system_appearance(Some(window), cx);
+            cx.new(|cx| app::KwApp::new(window, cx))
+        });
+        if let Err(e) = opened {
+            eprintln!("kubernet-wizard: cannot open window: {e}");
+            cx.quit();
+        }
+    });
+}

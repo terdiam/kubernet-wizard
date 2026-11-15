@@ -1,0 +1,18 @@
+# Reusable: include_role name=helm_bootstrap tasks_from=release.yml
+# vars: rel = {name, repo, chart, namespace, version?, values: [ "k=v", ... ]}
+- name: "Manifest {{ rel.name }}"
+  ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} apply -f {{ rel.manifest }}"
+  when: rel.manifest | default('') | length > 0
+  changed_when: false
+
+- name: "Helm release {{ rel.name }}"
+  ansible.builtin.command: >-
+    helm upgrade --install {{ rel.name }} {{ rel.chart }}
+    {% if rel.repo | default('') %}--repo {{ rel.repo }}{% endif %}
+    {% if rel.version | default('') %}--version {{ rel.version }}{% endif %}
+    --namespace {{ rel.namespace }} --create-namespace --wait --timeout 10m
+    --kubeconfig {{ kw_kubeconfig }}
+    {% for v in rel['values'] | default([]) %}--set {{ v }} {% endfor %}
+  when: rel.manifest | default('') | length == 0
+  register: kw_helm_out
+  changed_when: "'STATUS: deployed' in (kw_helm_out.stdout | default(''))"

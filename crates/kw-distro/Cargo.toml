@@ -1,0 +1,13 @@
+[package]
+name = "kw-distro"
+description = "Kubernetes distro plugins (enum dispatch) for kubernet-wizard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+kw-core.workspace = true
+serde.workspace = true
+
+[lints]
+workspace = true

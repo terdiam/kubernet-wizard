@@ -1,0 +1,41 @@
+# Managed by kubernet-wizard
+{% if not (kw_first_cp | default(false)) %}
+server: https://{{ kw_endpoint_host }}:9345
+{% endif %}
+token: "{{ kw_token }}"
+{% if kw_role == 'server' %}
+tls-san:
+{% for s in kw_tls_sans %}
+  - "{{ s }}"
+{% endfor %}
+cni: {{ kw_cni }}
+cluster-cidr: "{{ kw_pod_cidr }}"
+service-cidr: "{{ kw_service_cidr }}"
+cluster-dns: "{{ kw_cluster_dns }}"
+cluster-domain: "{{ kw_cluster_domain }}"
+write-kubeconfig-mode: "0600"
+disable:
+  - rke2-ingress-nginx
+{% if kw_kube_proxy == 'none' %}
+disable-kube-proxy: true
+{% endif %}
+{% if kw_workers_count | int > 0 %}
+node-taint:
+  - "node-role.kubernetes.io/control-plane:NoSchedule"
+{% endif %}
+etcd-arg:
+  - "quota-backend-bytes=4294967296"
+{% endif %}
+{% if kw_kube_proxy == 'ipvs' %}
+kube-proxy-arg:
+  - "proxy-mode=ipvs"
+{% endif %}
+kubelet-arg:
+  - "system-reserved={{ kw_kubelet.system_reserved }}"
+  - "kube-reserved={{ kw_kubelet.kube_reserved }}"
+  - "eviction-hard={{ kw_kubelet.eviction_hard }}"
+  - "max-pods={{ kw_kubelet.max_pods }}"
+  - "serialize-image-pulls=false"
+{% if kw_kubelet.cpu_manager_policy == 'static' %}
+  - "cpu-manager-policy=static"
+{% endif %}
