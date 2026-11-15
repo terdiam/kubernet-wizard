@@ -3405,7 +3405,7 @@ dependencies = [
 
 [[package]]
 name = "kw-app"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "directories",
  "gpui-kit",
@@ -3423,7 +3423,7 @@ dependencies = [
 
 [[package]]
 name = "kw-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "kw-core",
@@ -3435,7 +3435,7 @@ dependencies = [
 
 [[package]]
 name = "kw-core"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "ipnet",
  "serde",
@@ -3445,7 +3445,7 @@ dependencies = [
 
 [[package]]
 name = "kw-distro"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "kw-core",
  "serde",
@@ -3453,7 +3453,7 @@ dependencies = [
 
 [[package]]
 name = "kw-exec"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "kw-core",
  "thiserror 2.0.21",
@@ -3461,7 +3461,7 @@ dependencies = [
 
 [[package]]
 name = "kw-render"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "insta",
  "kw-core",
@@ -3476,7 +3476,7 @@ dependencies = [
 
 [[package]]
 name = "kw-update"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "flate2",
  "minisign-verify",
