@@ -448,7 +448,19 @@ impl Wizard {
 
     // ------------------------------------------------------------ navigation
 
+    /// Back is always open; forward only when every earlier step was
+    /// completed (visited, no errors), so steps cannot be skipped.
+    pub fn reachable(&self, step: Step) -> bool {
+        step.index() <= self.step.index()
+            || Step::ALL[..step.index()].iter().all(|&s| {
+                self.visited & (1 << s.index()) != 0 && self.report.step_severity(s) != Some(Severity::Error)
+            })
+    }
+
     pub fn go(&mut self, step: Step, cx: &mut Context<Self>) {
+        if !self.reachable(step) {
+            return;
+        }
         self.step = step;
         self.visited |= 1 << step.index();
         self.topic = None;

@@ -7,7 +7,7 @@ const CAPS: Capabilities = Capabilities {
     versions: &["v1.34.2+k3s1", "v1.34.2", "v1.34.2+rke2r1"],
     cnis: &[Cni::Cilium, Cni::Calico, Cni::Flannel, Cni::Canal],
     kube_proxy: &[KubeProxyMode::Iptables, KubeProxyMode::Ipvs, KubeProxyMode::Nftables, KubeProxyMode::None],
-    os: &[NodeOs::Ubuntu2204, NodeOs::Ubuntu2404, NodeOs::Debian12, NodeOs::Debian13, NodeOs::Rhel9],
+    os: &[NodeOs::Ubuntu2204, NodeOs::Ubuntu2404, NodeOs::Ubuntu2604, NodeOs::Debian12, NodeOs::Debian13, NodeOs::Rhel9],
     bundled_ingress: None,
 };
 
@@ -146,4 +146,36 @@ fn proxmox_rules() {
     s.endpoint.mode = EndpointMode::CloudLb;
     s.endpoint.dns_name = None;
     assert!(validate(&s, &CAPS).issues.iter().any(|i| i.field == Field::EndpointMode), "existing VMs need LB address");
+}
+
+#[test]
+fn no_vip_on_cloud_dns_endpoint_instead() {
+    use kw_core::{CloudProvider, EndpointMode, Field, Target, presets::Preset};
+    let mut s = Preset::CloudHetzner.build();
+    s.endpoint.mode = EndpointMode::KubeVip;
+    s.endpoint.vip = Some("10.0.1.250".parse().unwrap());
+    assert!(errors(&s).contains(&Field::EndpointMode), "VIP rejected on cloud VPC");
+    assert!(compat::endpoint(true, EndpointMode::KeepalivedHaproxy).is_some());
+    assert!(compat::endpoint(false, EndpointMode::KubeVip).is_none(), "VIP fine on baremetal");
+
+    s.endpoint = CpEndpoint { mode: EndpointMode::Dns, vip: None, interface: None, dns_name: None, port: 6443 };
+    assert!(errors(&s).contains(&Field::EndpointMode), "DNS mode needs a name");
+    s.endpoint.dns_name = Some("api.example.com".into());
+    assert!(errors(&s).is_empty(), "{:?}", validate(&s, &CAPS).issues);
+    assert!(validate(&s, &CAPS).issues.iter().all(|i| i.field != Field::Interface), "no NIC warning without VIP");
+
+    // Proxmox has no managed LB, so VIP stays allowed there.
+    s.target = Target::Cloud { provider: CloudProvider::Proxmox, provisioning: CloudProvider::Proxmox.tofu_defaults().provisioning() };
+    assert!(compat::endpoint(s.has_cloud_lb(), EndpointMode::KubeVip).is_none());
+}
+
+#[test]
+fn dns_endpoint_is_ha_ready() {
+    let mut s = Preset::Homelab.build();
+    s.topology.ha = false;
+    s.topology.control_planes = 1;
+    s.endpoint.mode = EndpointMode::Dns;
+    s.endpoint.vip = None;
+    s.endpoint.dns_name = None;
+    assert!(matches!(ha::plan_upgrade(&s, &[], 3), Err(ha::HaError::NoStableEndpoint)));
 }

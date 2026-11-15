@@ -9,6 +9,9 @@
 {%- if not distro.bundled_runtime %}
     - containerd
 {%- endif %}
+{%- if spec.endpoint.mode == "dns" %}
+    - cp_endpoint_dns
+{%- endif %}
 
 - name: Verify endpoint before joining
   hosts: control_plane[0]

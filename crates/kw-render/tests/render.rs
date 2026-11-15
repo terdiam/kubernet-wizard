@@ -73,11 +73,31 @@ fn cloud_spec(provider: kw_core::CloudProvider, cloud_lb: bool) -> kw_core::Clus
     use kw_core::{EndpointMode, Target};
     let mut s = Preset::CloudHetzner.build();
     s.target = Target::Cloud { provider, provisioning: provider.tofu_defaults().provisioning() };
-    if !cloud_lb {
+    if !cloud_lb && provider.has_cloud_lb() {
+        // Cloud VPCs cannot float a VIP: DNS-name endpoint instead.
+        s.endpoint.mode = EndpointMode::Dns;
+        s.endpoint.dns_name = Some("api.example.com".into());
+    } else if !cloud_lb {
         s.endpoint.mode = EndpointMode::KubeVip;
         s.endpoint.vip = Some("10.0.1.250".parse().unwrap());
     }
     s
+}
+
+#[test]
+fn dns_endpoint_pins_hosts_without_vip() {
+    use kw_core::EndpointMode;
+    let mut s = Preset::Homelab.build();
+    s.endpoint.mode = EndpointMode::Dns;
+    s.endpoint.vip = None;
+    s.endpoint.dns_name = Some("api.lab.example".into());
+    let files = render_spec(&s).unwrap();
+    let get = |p: &str| files.iter().find(|f| f.path == p).unwrap_or_else(|| panic!("{p} missing")).text().into_owned();
+    assert!(get("ansible/site.yml").contains("- cp_endpoint_dns"));
+    assert!(!get("ansible/site.yml").contains("cp_endpoint_kubevip"));
+    assert!(get("ansible/group_vars/all.yml").contains("kw_endpoint_host: \"api.lab.example\""));
+    assert!(files.iter().any(|f| f.path == "ansible/roles/cp_endpoint_dns/tasks/main.yml"));
+    assert!(!files.iter().any(|f| f.path.starts_with("ansible/roles/cp_endpoint_kubevip/")));
 }
 
 #[test]

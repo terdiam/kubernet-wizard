@@ -75,6 +75,7 @@ keys! {
     Retry => "Coba lagi", "Retry";
     ErrorsOnly => "Hanya error", "Errors only";
     FixErrors => "Perbaiki error sebelum lanjut", "Fix errors before continuing";
+    StepLocked => "Selesaikan langkah saat ini dulu", "Finish the current step first";
     SearchDocs => "Cari dokumentasi…", "Search docs…";
     ConfirmDeploy => "Jalankan di server sungguhan?", "Run against real servers?";
     ConfirmDeployBody => "Ansible akan mengubah konfigurasi node (paket, sysctl, layanan) dan memasang Kubernetes. Pastikan inventory benar.", "Ansible will change node configuration (packages, sysctl, services) and install Kubernetes. Make sure the inventory is correct.";

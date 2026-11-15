@@ -14,6 +14,22 @@
   delegate_to: localhost
   become: false
 
+- name: Can this machine resolve the API name?
+  ansible.builtin.command: python3 -c "import socket, sys; socket.getaddrinfo(sys.argv[1], None)" {{ kw_endpoint_host }}
+  register: kw_local_dns
+  changed_when: false
+  failed_when: false
+  delegate_to: localhost
+  become: false
+  when: kw_endpoint_mode == 'dns'
+
+- name: DNS record missing on this machine
+  ansible.builtin.debug:
+    msg: >-
+      kubeconfig uses {{ kw_endpoint_host }}, which does not resolve here. Create a DNS record
+      or add "{{ ansible_host }} {{ kw_endpoint_host }}" to /etc/hosts before using kubectl.
+  when: kw_endpoint_mode == 'dns' and kw_local_dns.rc != 0
+
 - name: Smoke test
   ansible.builtin.command: "{{ kw_kubectl }} --kubeconfig {{ kw_kubeconfig }} get nodes -o wide"
   register: kw_nodes

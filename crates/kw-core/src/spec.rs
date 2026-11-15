@@ -275,6 +275,7 @@ pub enum NodeRole {
 pub enum NodeOs {
     Ubuntu2204,
     Ubuntu2404,
+    Ubuntu2604,
     Debian12,
     Debian13,
     Rhel9,
@@ -283,6 +284,7 @@ pub enum NodeOs {
 labeled_enum!(NodeOs {
     Ubuntu2204 => "Ubuntu 22.04 LTS",
     Ubuntu2404 => "Ubuntu 24.04 LTS",
+    Ubuntu2604 => "Ubuntu 26.04 LTS",
     Debian12 => "Debian 12",
     Debian13 => "Debian 13",
     Rhel9 => "RHEL / Rocky / Alma 9",
@@ -292,7 +294,7 @@ impl NodeOs {
     #[inline]
     pub const fn family(self) -> &'static str {
         match self {
-            Self::Ubuntu2204 | Self::Ubuntu2404 | Self::Debian12 | Self::Debian13 => "debian",
+            Self::Ubuntu2204 | Self::Ubuntu2404 | Self::Ubuntu2604 | Self::Debian12 | Self::Debian13 => "debian",
             Self::Rhel9 => "redhat",
         }
     }
@@ -326,13 +328,25 @@ pub enum EndpointMode {
     KubeVip,
     KeepalivedHaproxy,
     CloudLb,
+    /// DNS name pointing at the control planes; for networks that cannot
+    /// float a virtual IP (no ARP/VRRP, no spare address).
+    Dns,
 }
 
 labeled_enum!(EndpointMode {
     KubeVip => "kube-vip (VIP)",
     KeepalivedHaproxy => "keepalived + HAProxy",
     CloudLb => "Cloud load balancer",
+    Dns => "DNS name (no VIP)",
 });
+
+impl EndpointMode {
+    /// Modes that float a virtual IP between control planes.
+    #[inline]
+    pub const fn uses_vip(self) -> bool {
+        matches!(self, Self::KubeVip | Self::KeepalivedHaproxy)
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ServiceLb {

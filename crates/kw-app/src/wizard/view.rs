@@ -143,16 +143,18 @@ impl Wizard {
         let list = v_flex().id("stepper").w(px(200.)).h_full().p_2().gap_1().border_r_1().border_color(border).children(
             Step::ALL.iter().map(|&s| {
                 let visited = self.visited & (1 << s.index()) != 0;
+                let locked = !self.reachable(s);
                 let (icon, color) = match (self.report.step_severity(s), visited) {
-                    (Some(Severity::Error), _) => (IconName::CircleX, danger),
-                    (Some(Severity::Warning), _) => (IconName::TriangleAlert, warning),
-                    (None, true) => (IconName::CircleCheck, success),
-                    (None, false) => (IconName::ChevronRight, muted),
+                    (Some(Severity::Error), _) => (Icon::new(IconName::CircleX), danger),
+                    (Some(Severity::Warning), _) => (Icon::new(IconName::TriangleAlert), warning),
+                    (None, true) => (Icon::new(IconName::CircleCheck), success),
+                    (None, false) if locked => (Icon::new(Lucide::Lock), muted),
+                    (None, false) => (Icon::new(IconName::ChevronRight), muted),
                 };
                 h_flex()
                     .gap_1()
                     .items_center()
-                    .child(Icon::new(icon).small().text_color(color))
+                    .child(icon.small().text_color(color))
                     .child(
                         Button::new(("step", s.index()))
                             .ghost()
@@ -161,6 +163,8 @@ impl Wizard {
                             .icon(step_icon(s))
                             .label(format!("{}. {}", s.index() + 1, i18n::step_title(lang, s)))
                             .selected(s == self.step)
+                            .disabled(locked)
+                            .when(locked, |b| b.tooltip(i18n::t(lang, K::StepLocked)))
                             .on_click(cx.listener(move |this, _, _, cx| this.go(s, cx))),
                     )
             }),

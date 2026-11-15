@@ -1,0 +1,15 @@
+# DNS-name endpoint (no VIP). A real DNS record wins; without one the name is
+# pinned to the first control plane in /etc/hosts so bootstrap still works.
+# After adding control planes, point the DNS record at all of them or an LB.
+- name: Does the API name resolve?
+  ansible.builtin.command: getent hosts {{ kw_endpoint_host }}
+  register: kw_dns_lookup
+  changed_when: false
+  failed_when: false
+
+- name: Pin API name to the first control plane (no DNS record yet)
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '\s{{ kw_endpoint_host | regex_escape }}$'
+    line: "{{ hostvars[groups['control_plane'][0]].ansible_host }} {{ kw_endpoint_host }}"
+  when: kw_dns_lookup.rc != 0

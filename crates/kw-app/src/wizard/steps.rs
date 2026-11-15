@@ -41,8 +41,19 @@ enum ProvKind {
 
 #[inline]
 fn ep_needs_dns(spec: &kw_core::ClusterSpec) -> bool {
-    spec.endpoint.mode == EndpointMode::CloudLb
-        && matches!(spec.target, Target::Cloud { provisioning: Provisioning::ExistingVms, .. })
+    match spec.endpoint.mode {
+        EndpointMode::Dns => true,
+        EndpointMode::CloudLb => matches!(spec.target, Target::Cloud { provisioning: Provisioning::ExistingVms, .. }),
+        EndpointMode::KubeVip | EndpointMode::KeepalivedHaproxy => false,
+    }
+}
+
+/// Keeps the endpoint mode valid after the target changes (e.g. no VIP on cloud).
+fn fit_endpoint(spec: &mut kw_core::ClusterSpec) {
+    let cloud = spec.has_cloud_lb();
+    if compat::endpoint(cloud, spec.endpoint.mode).is_some() {
+        spec.endpoint.mode = if cloud { EndpointMode::CloudLb } else { EndpointMode::KubeVip };
+    }
 }
 
 #[inline]
@@ -144,6 +155,7 @@ impl Wizard {
                         TargetKind::Baremetal => Target::Baremetal,
                         TargetKind::Cloud => Target::Cloud { provider: CloudProvider::Hetzner, provisioning: default_tofu(CloudProvider::Hetzner) },
                     };
+                    fit_endpoint(s);
                 },
                 cx,
             ),
@@ -173,6 +185,7 @@ impl Wizard {
                                     *provisioning = default_tofu(p);
                                 }
                             }
+                            fit_endpoint(s);
                         },
                         cx,
                     ),
@@ -302,7 +315,8 @@ impl Wizard {
         let t = &self.spec.topology;
         let ep = match self.spec.endpoint.mode {
             EndpointMode::CloudLb => "Cloud LB".to_owned(),
-            _ => self.spec.endpoint.vip.map_or_else(|| "VIP ?".to_owned(), |v| format!("VIP {v}")),
+            EndpointMode::Dns => self.spec.endpoint.dns_name.clone().filter(|d| !d.is_empty()).unwrap_or_else(|| "DNS ?".to_owned()),
+            EndpointMode::KubeVip | EndpointMode::KeepalivedHaproxy => self.spec.endpoint.vip.map_or_else(|| "VIP ?".to_owned(), |v| format!("VIP {v}")),
         };
         let boxes = |prefix: &'static str, n: u8, color: Hsla| {
             h_flex().gap_2().flex_wrap().justify_center().children((0..n.min(12)).map(move |i| {
@@ -435,7 +449,7 @@ impl Wizard {
         let ep = &self.spec.endpoint;
         let lb = &self.spec.service_lb;
         let adv = Self::advanced(cx);
-        let uses_vip = ep.mode != EndpointMode::CloudLb;
+        let uses_vip = ep.mode.uses_vip();
         let uses_pool = matches!(lb.kind, ServiceLbKind::Metallb | ServiceLbKind::KubeVip);
         v_flex()
             .gap_4()
@@ -446,7 +460,7 @@ impl Wizard {
                 Some(DocPage::EndpointLb),
                 self.chips(
                     "ep",
-                    &[EndpointMode::KubeVip, EndpointMode::KeepalivedHaproxy, EndpointMode::CloudLb],
+                    EndpointMode::ALL,
                     ep.mode,
                     EndpointMode::label,
                     move |m| compat::endpoint(cloud, m),
@@ -466,7 +480,11 @@ impl Wizard {
                 )
             })
             .when(adv || needs_dns, |d| {
-                let label = if needs_dns { "Load balancer DNS name or IP" } else { "DNS name (optional, added to certificate)" };
+                let label = match ep.mode {
+                    EndpointMode::Dns => "API DNS name (e.g. api.example.com)",
+                    _ if needs_dns => "Load balancer DNS name or IP",
+                    _ => "DNS name (optional, added to certificate)",
+                };
                 d.child(self.field("f-dns", label, None, None, self.input(In::DnsName), cx))
             })
             .child(self.field(

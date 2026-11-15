@@ -29,8 +29,12 @@ pub fn kube_proxy(caps: &Capabilities, spec_cni: Cni, mode: KubeProxyMode) -> Re
 
 #[inline]
 pub fn endpoint(cloud_lb: bool, mode: EndpointMode) -> Reason {
-    (mode == EndpointMode::CloudLb && !cloud_lb)
-        .then_some("Cloud load balancer needs a cloud provider with managed LBs (not baremetal or Proxmox)")
+    if mode == EndpointMode::CloudLb && !cloud_lb {
+        return Some("Cloud load balancer needs a cloud provider with managed LBs (not baremetal or Proxmox)");
+    }
+    // Cloud VPCs drop gratuitous ARP / VRRP, so a floating VIP never answers.
+    (mode.uses_vip() && cloud_lb)
+        .then_some("Cloud networks cannot float a virtual IP (no ARP/VRRP): use the cloud load balancer or a DNS name")
 }
 
 #[inline]

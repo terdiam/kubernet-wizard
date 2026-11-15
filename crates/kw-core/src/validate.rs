@@ -298,8 +298,16 @@ fn check_endpoint(spec: &ClusterSpec, out: &mut Vec<Issue>) {
             }
         },
         EndpointMode::CloudLb => {}
+        EndpointMode::Dns => {
+            if ep.dns_name.as_deref().is_none_or(|d| d.trim().is_empty()) {
+                out.push(Issue::error(
+                    Field::EndpointMode,
+                    "Enter the API DNS name (e.g. api.example.com); it stays the endpoint when you add control planes",
+                ));
+            }
+        }
     }
-    if ep.mode != EndpointMode::CloudLb && ep.interface.as_deref().is_none_or(str::is_empty) {
+    if ep.mode.uses_vip() && ep.interface.as_deref().is_none_or(str::is_empty) {
         out.push(Issue::warn(Field::Interface, "Interface not set; first default-route NIC is used"));
     }
 

@@ -56,6 +56,7 @@ pub fn topic(t: Topic) -> Help {
             EndpointMode::KubeVip => h("kube-vip", "Virtual IP for the API server held by a control-plane pod (ARP). No extra packages. Required even for one control plane so you can upgrade to HA later.", D::EndpointLb),
             EndpointMode::KeepalivedHaproxy => h("keepalived + HAProxy", "Classic VRRP VIP with HAProxy health checks on each control plane. API is exposed on port 8443.", D::EndpointLb),
             EndpointMode::CloudLb => h("Cloud load balancer", "Managed TCP load balancer created by OpenTofu in front of the control planes. Cloud targets only.", D::EndpointLb),
+            EndpointMode::Dns => h("DNS name (no VIP)", "For networks that cannot float a virtual IP (cloud VPCs, hosting providers, no spare IP). The API name goes into the certificate; without a DNS record it is pinned to the first control plane in /etc/hosts. Point the record at all control planes after upgrading to HA.", D::EndpointLb),
         },
         Topic::ServiceLb(k) => match k {
             ServiceLbKind::Metallb => h("MetalLB", "Gives LoadBalancer Services real IPs on baremetal. L2 mode works on any flat network; BGP for routers.", D::EndpointLb),

@@ -179,7 +179,7 @@ fn build_ctx(spec: &ClusterSpec, distro: DistroVars) -> (Ctx<'_>, Selection) {
         EndpointMode::KubeVip | EndpointMode::KeepalivedHaproxy => {
             ep.vip.map(|v| v.to_string()).or_else(|| ep.dns_name.clone())
         }
-        EndpointMode::CloudLb => ep.dns_name.clone(),
+        EndpointMode::CloudLb | EndpointMode::Dns => ep.dns_name.clone(),
     };
     // keepalived+haproxy runs on CP nodes next to kube-apiserver (6443).
     let api_port = if ep.mode == EndpointMode::KeepalivedHaproxy { 8443 } else { ep.port };
@@ -241,6 +241,7 @@ fn build_ctx(spec: &ClusterSpec, distro: DistroVars) -> (Ctx<'_>, Selection) {
     match ep.mode {
         EndpointMode::KubeVip => roles.push("cp_endpoint_kubevip"),
         EndpointMode::KeepalivedHaproxy => roles.push("cp_endpoint_keepalived"),
+        EndpointMode::Dns => roles.push("cp_endpoint_dns"),
         EndpointMode::CloudLb => {}
     }
     roles.extend_from_slice(&roles_addon);

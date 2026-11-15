@@ -6,7 +6,7 @@ use std::borrow::Cow;
 use gpui_kit::{AssetSource, Result, SharedString};
 
 gpui_kit::assets::icon_assets!(ExtraIcons, [
-    Boxes, Building2, ClipboardCheck, Cloud, Gauge, GitBranch, House, Laptop, Network, Puzzle, Rocket,
+    Boxes, Building2, ClipboardCheck, Cloud, Gauge, GitBranch, House, Laptop, Lock, Network, Puzzle, Rocket,
     Route, Server, WandSparkles, Waypoints,
 ]);
 

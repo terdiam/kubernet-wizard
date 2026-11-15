@@ -34,6 +34,7 @@ pub fn plan_upgrade(spec: &ClusterSpec, new_cps: &[Node], target_cps: u8) -> Res
     let stable = match spec.endpoint.mode {
         EndpointMode::KubeVip | EndpointMode::KeepalivedHaproxy => spec.endpoint.vip.is_some(),
         EndpointMode::CloudLb => true,
+        EndpointMode::Dns => spec.endpoint.dns_name.as_deref().is_some_and(|d| !d.trim().is_empty()),
     };
     if !stable {
         return Err(HaError::NoStableEndpoint);
