@@ -2,3 +2,8 @@ kubernet-wizard
 Copyright 2026 M. I. H
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product bundles the following fonts, licensed under the SIL Open Font
+License, Version 1.1 (see crates/kw-app/assets/fonts/OFL-*.txt):
+- Hanken Grotesk, Copyright 2021 The Hanken Grotesk Project Authors
+- JetBrains Mono, Copyright 2020 The JetBrains Mono Project Authors

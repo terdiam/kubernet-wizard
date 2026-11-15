@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#c9cedb}a{color:#3B5BDB}a:hover{color:#2B46B0}*{box-sizing:border-box}@keyframes kwspin{to{transform:rotate(360deg)}}@keyframes kwpulse{50%{opacity:.45}}</style>
+<script>
+(function(){
+var P={check:'<path d="M20 6 9 17l-5-5"/>',x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',lock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',"folder-open":'<path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>',folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>',cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',boxes:'<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',server:'<rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/>',waypoints:'<circle cx="12" cy="4.5" r="2.5"/><path d="m10.2 6.3-3.9 3.9"/><circle cx="4.5" cy="12" r="2.5"/><path d="M7 12h10"/><circle cx="19.5" cy="12" r="2.5"/><path d="m13.8 17.7 3.9-3.9"/><circle cx="12" cy="19.5" r="2.5"/>',network:'<rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/>',route:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',puzzle:'<path d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"/>',"git-branch":'<line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',gauge:'<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',"clipboard-check":'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',rocket:'<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',laptop:'<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',house:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',building:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',book:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/>',"arrow-right":'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',"arrow-left":'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',"arrow-down":'<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',copy:'<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',"circle-x":'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',"circle-check":'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',loader:'<path d="M21 12a9 9 0 1 1-6.219-8.56"/>',search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',right:'<path d="m9 18 6-6-6-6"/>',down:'<path d="m6 9 6 6 6-6"/>',sparkles:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',panel:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/>',ext:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>'};
+class LI extends HTMLElement{static get observedAttributes(){return['n','size']}connectedCallback(){this.r()}attributeChangedCallback(){this.r()}r(){var s=this.getAttribute('size')||16;this.style.display='inline-flex';this.style.flex='none';(this.sr=this.sr||this.attachShadow({mode:'open'})).innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '+(this.getAttribute('n')==='loader'?'style="animation:kwspin 1s linear infinite"':'')+'>'+(P[this.getAttribute('n')]||'')+'</svg>'}}
+class KL extends HTMLElement{static get observedAttributes(){return['size']}connectedCallback(){this.r()}attributeChangedCallback(){this.r()}r(){var s=+this.getAttribute('size')||64;this.style.display='inline-flex';this.style.flex='none';var g='g'+s;(this.sr=this.sr||this.attachShadow({mode:'open'})).innerHTML='<svg width="'+s+'" height="'+s+'" viewBox="0 0 64 64"><defs><linearGradient id="'+g+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B5BDB"/><stop offset="1" stop-color="#12B8A6"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#'+g+')"/><path d="M32 12 48.5 21.5v19L32 50 15.5 40.5v-19Z" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/><path d="M32 25 24 38.5M32 25l8 13.5M24 38.5h16" stroke="#fff" stroke-width="2" fill="none"/><g fill="#fff"><circle cx="32" cy="25" r="3.2"/><circle cx="24" cy="38.5" r="3.2"/><circle cx="40" cy="38.5" r="3.2"/></g><path d="M52 8l1.5 3.6L57 13l-3.5 1.4L52 18l-1.5-3.6L47 13l3.5-1.4Z" fill="#FFD43B"/><path d="M12 44l1 2.4 2.4 1-2.4 1-1 2.4-1-2.4-2.4-1 2.4-1Z" fill="#FFD43B"/></svg>'}}
+if(!customElements.get('lu-i'))customElements.define('lu-i',LI);if(!customElements.get('kw-logo'))customElements.define('kw-logo',KL);
+})();
+</script>
+</helmet>
+<div style="{{ rootStyle }}">
+<!-- designer bar -->
+<div style="width:{{ W }}px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:0 0 12px;font:500 12px 'Hanken Grotesk',sans-serif">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="9"><div data-s="{{ t.s }}" data-step="{{ t.step }}" onClick="{{ goScreen }}" style="{{ t.style }}">{{ t.label }}</div></sc-for>
+<span style="flex:1"></span>
+<div onClick="{{ toggleTheme }}" style="display:flex;gap:6px;align-items:center;padding:5px 10px;border-radius:6px;background:#fff;color:#1B2033;cursor:pointer"><lu-i n="{{ themeIcon }}" size="14"></lu-i>{{ themeLabel }}</div>
+<div onClick="{{ toggleErr }}" style="padding:5px 10px;border-radius:6px;background:#fff;color:#1B2033;cursor:pointer">Errors: {{ errLabel }}</div>
+<div onClick="{{ toggleCloud }}" style="padding:5px 10px;border-radius:6px;background:#fff;color:#1B2033;cursor:pointer">Target: {{ cloudLabel }}</div>
+<div onClick="{{ startTour }}" style="padding:5px 10px;border-radius:6px;background:#FFD43B;color:#1B2033;cursor:pointer">Guided tour</div>
+</div>
+
+<!-- app frame -->
+<div style="position:relative;width:{{ W }}px;height:{{ H }}px;background:var(--bg);color:var(--tx);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;font:400 13px/1.45 'Hanken Grotesk',sans-serif;box-shadow:0 12px 40px rgba(10,15,40,.28);border:1px solid var(--bd)">
+
+<!-- WELCOME -->
+<sc-if value="{{ isWelcome }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:36px 24px;gap:18px">
+<kw-logo size="88"></kw-logo>
+<div style="font:700 28px 'Hanken Grotesk';letter-spacing:-.01em">Welcome to kubernet-wizard</div>
+<div style="font-size:15px;color:var(--mu);max-width:520px;text-align:center">Design a Kubernetes cluster step by step, then deploy it with OpenTofu, Ansible and GitOps.</div>
+<div style="width:640px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;margin-top:6px">
+<div style="padding:14px 18px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px">Prerequisites</b><span style="color:var(--mu);font-size:12px">4 of 6 ready</span></div>
+<sc-for list="{{ prereqs }}" as="p" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-top:1px solid var(--bd)">
+<div style="width:140px;font-weight:600">{{ p.name }}</div>
+<div style="flex:1;font:12px 'JetBrains Mono',monospace;color:var(--mu)">{{ p.ver }}</div>
+<span style="{{ p.badge }}"><lu-i n="{{ p.icon }}" size="13"></lu-i>{{ p.status }}</span>
+<sc-if value="{{ p.help }}"><a href="#" style="font-size:12px;width:96px;text-align:right;color:var(--prt)">How to install</a></sc-if><sc-if value="{{ p.noHelp }}"><span style="width:96px"></span></sc-if>
+</div></sc-for>
+<div style="padding:10px 18px;border-top:1px solid var(--bd);font-size:12px;color:var(--mu);display:flex;gap:6px;align-items:center"><lu-i n="info" size="14"></lu-i>On Windows, Ansible runs through WSL2.</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:4px"><div data-s="home" onClick="{{ startTourHome }}" style="{{ btnP }}">Start tour</div><div data-s="home" onClick="{{ goScreen }}" style="{{ btnG }}">Skip</div></div>
+</div>
+</sc-if>
+
+<!-- HEADER (all but welcome) -->
+<sc-if value="{{ hasShell }}" hint-placeholder-val="{{ true }}">
+<div style="height:52px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--sf);border-bottom:1px solid var(--bd)">
+<div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px"><kw-logo size="28"></kw-logo>kubernet-wizard</div>
+<div style="display:flex;gap:2px;margin-left:8px">
+<sc-for list="{{ navItems }}" as="n"><div data-s="{{ n.s }}" onClick="{{ goScreen }}" style="{{ n.style }}">{{ n.label }}</div></sc-for></div>
+<span style="flex:1"></span>
+<div id="modeToggle" style="display:flex;background:var(--s2);border-radius:8px;padding:2px;font-size:12px;font-weight:600">
+<div data-m="basic" onClick="{{ setMode }}" style="{{ basicSt }}">{{ T.basic }}</div><div data-m="advanced" onClick="{{ setMode }}" style="{{ advSt }}">{{ T.adv }}</div></div>
+<div style="display:flex;gap:2px;color:var(--mu)"><div style="padding:6px;border-radius:6px" title="Undo"><lu-i n="undo" size="16"></lu-i></div><div style="padding:6px;border-radius:6px;opacity:.45" title="Redo"><lu-i n="redo" size="16"></lu-i></div></div>
+<div onClick="{{ toggleLang }}" style="display:flex;gap:5px;align-items:center;padding:5px 9px;border:1px solid var(--bd);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer"><lu-i n="globe" size="14"></lu-i>{{ langLabel }}</div>
+<div data-d="update" onClick="{{ openDlg }}" style="display:flex;gap:5px;align-items:center;padding:4px 10px;border-radius:999px;background:var(--gds);color:var(--gdt);font-size:12px;font-weight:600;cursor:pointer"><lu-i n="download" size="13"></lu-i>{{ T.upd }}</div>
+<div data-d="settings" onClick="{{ openDlg }}" style="padding:6px;color:var(--mu);cursor:pointer"><lu-i n="settings" size="18"></lu-i></div>
+</div>
+</sc-if>
+
+<!-- HOME -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:30px 48px;display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;align-items:center;gap:18px"><kw-logo size="64"></kw-logo><div><div style="font:700 26px 'Hanken Grotesk';letter-spacing:-.01em">What are we building today?</div><div style="color:var(--mu);font-size:14px">Start fresh, pick up where you left off, or begin from a preset.</div></div></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+<sc-for list="{{ homeActions }}" as="a"><div data-s="{{ a.s }}" onClick="{{ goScreen }}" style="{{ a.style }}"><lu-i n="{{ a.icon }}" size="26"></lu-i><div style="font-weight:700;font-size:15px">{{ a.label }}</div><div style="font-size:12px;opacity:.85">{{ a.sub }}</div></div></sc-for></div>
+<div><div style="font-weight:700;margin-bottom:10px;font-size:14px">Presets</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+<sc-for list="{{ presets }}" as="p"><div data-s="wizard" data-step="1" onClick="{{ goScreen }}" style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;cursor:pointer" style-hover="border-color:var(--pr)">
+<div style="width:36px;height:36px;border-radius:9px;background:var(--prs);color:var(--prt);display:flex;align-items:center;justify-content:center"><lu-i n="{{ p.icon }}" size="19"></lu-i></div>
+<div style="font-weight:700">{{ p.name }}</div><div style="font:12px 'JetBrains Mono',monospace;color:var(--mu)">{{ p.spec }}</div>
+<div style="font-size:12px;color:var(--mu);display:flex;gap:5px;align-items:center;margin-top:auto"><lu-i n="server" size="13"></lu-i>{{ p.foot }}</div></div></sc-for></div></div>
+<div><div style="font-weight:700;margin-bottom:10px;font-size:14px">Recent projects</div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px">
+<sc-for list="{{ recents }}" as="r"><div data-s="day2" onClick="{{ goScreen }}" style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--bd);cursor:pointer"><lu-i n="folder" size="17"></lu-i><b style="width:170px">{{ r.name }}</b><span style="flex:1;font:12px 'JetBrains Mono',monospace;color:var(--mu)">{{ r.path }}</span><span style="color:var(--mu);font-size:12px">{{ r.when }}</span><span style="{{ r.badge }}"><lu-i n="{{ r.icon }}" size="12"></lu-i>{{ r.status }}</span></div></sc-for></div></div>
+</div>
+</sc-if>
+
+<!-- WIZARD BODY -->
+<sc-if value="{{ isWizard }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex">
+<!-- stepper -->
+<div style="width:200px;flex:none;background:var(--sf);border-right:1px solid var(--bd);padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow:auto">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="12">
+<div data-i="{{ s.i }}" data-tip="{{ s.tip }}" onClick="{{ goStep }}" onMouseEnter="{{ tipEnter }}" onMouseLeave="{{ tipLeave }}" style="{{ s.style }}">
+<div style="{{ s.badge }}"><lu-i n="{{ s.icon }}" size="15"></lu-i></div>
+<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px">{{ s.i }}. {{ s.label }}</div><div style="font-size:11px;opacity:.85;display:flex;gap:3px;align-items:center"><lu-i n="{{ s.sIcon }}" size="11"></lu-i>{{ s.sText }}</div></div>
+</div></sc-for>
+</div>
+
+<!-- center -->
+<div style="flex:1;min-width:0;overflow:auto;padding:22px 28px;display:flex;flex-direction:column;gap:18px">
+<sc-if value="{{ isConfigStep }}">
+<div style="display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:10px;background:var(--prs);color:var(--prt);display:flex;align-items:center;justify-content:center"><lu-i n="{{ cur.icon }}" size="22"></lu-i></div><div><div style="font:700 21px 'Hanken Grotesk';letter-spacing:-.01em">{{ cur.title }}</div><div style="color:var(--mu)">{{ cur.desc }}</div></div></div>
+
+<sc-for list="{{ groups }}" as="g">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:6px;font-weight:600"><span>{{ g.label }}</span><span title="Open docs" style="color:var(--mu);display:inline-flex"><lu-i n="help" size="14"></lu-i></span><sc-if value="{{ g.adv }}"><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--prs);color:var(--prt)">ADVANCED</span></sc-if></div>
+<div style="{{ g.grid }}">
+<sc-for list="{{ g.chips }}" as="c">
+<div data-k="{{ c.k }}" data-v="{{ c.v }}" data-dis="{{ c.dis }}" data-tip="{{ c.tip }}" data-focus="{{ c.focus }}" onClick="{{ pick }}" onMouseEnter="{{ tipEnter }}" onMouseLeave="{{ tipLeave }}" style="{{ c.style }}">
+<div style="display:flex;align-items:center;gap:4px 6px;flex-wrap:wrap;font-weight:600"><sc-if value="{{ c.sel }}"><span style="color:var(--prt);display:inline-flex"><lu-i n="circle-check" size="15"></lu-i></span></sc-if><span>{{ c.label }}</span>
+<sc-if value="{{ c.rec }}"><span style="font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--oks);color:var(--okt)">Recommended</span></sc-if>
+<sc-if value="{{ c.soon }}"><span style="font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--s2);color:var(--mu)">Coming soon</span></sc-if>
+<sc-if value="{{ c.lock }}"><span style="margin-left:auto;display:inline-flex"><lu-i n="lock" size="13"></lu-i></span></sc-if></div>
+<sc-if value="{{ c.d }}"><div style="font-size:12px;color:var(--mu)">{{ c.d }}</div></sc-if>
+<sc-if value="{{ c.sub }}"><div style="font:11.5px 'JetBrains Mono',monospace;color:var(--mu)">{{ c.sub }}</div></sc-if>
+<sc-if value="{{ c.reason }}"><div style="font-size:11.5px;color:var(--okt)">{{ c.reason }}</div></sc-if>
+</div></sc-for></div>
+<sc-if value="{{ g.note }}"><div style="font-size:12px;color:var(--mu);display:flex;gap:5px;align-items:center"><lu-i n="info" size="13"></lu-i>{{ g.note }}</div></sc-if>
+</div></sc-for>
+
+<sc-if value="{{ isTopo }}">
+<div style="display:flex;align-items:center;gap:10px"><b>Workers</b><span style="color:var(--mu);display:inline-flex"><lu-i n="help" size="14"></lu-i></span>
+<div style="display:flex;align-items:center;border:1px solid var(--bd);border-radius:8px;background:var(--sf)"><div data-d="-1" onClick="{{ workers }}" style="padding:5px 12px;cursor:pointer;font-weight:700">−</div><div style="padding:5px 14px;font:500 13px 'JetBrains Mono',monospace;border-left:1px solid var(--bd);border-right:1px solid var(--bd)">{{ workerCount }}</div><div data-d="1" onClick="{{ workers }}" style="padding:5px 12px;cursor:pointer;font-weight:700">+</div></div></div>
+<div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px">
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden">
+<div style="display:grid;grid-template-columns:70px 1fr 70px 1.3fr 70px;gap:8px;padding:8px 12px;font-size:11px;font-weight:700;color:var(--mu);background:var(--s2)"><span>Name</span><span>IP</span><span>User</span><span>SSH key</span><span>Role</span></div>
+<sc-for list="{{ inventory }}" as="n"><div style="display:grid;grid-template-columns:70px 1fr 70px 1.3fr 70px;gap:8px;padding:7px 12px;border-top:1px solid var(--bd);align-items:center;font:12px 'JetBrains Mono',monospace"><span>{{ n.name }}</span><span style="{{ n.ipStyle }}">{{ n.ip }}</span><span>ubuntu</span><span style="color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">id_ed25519</span><span style="font-family:'Hanken Grotesk';font-size:11px;font-weight:600">{{ n.role }}</span></div></sc-for>
+<sc-if value="{{ topoErr }}"><div style="padding:8px 12px;border-top:1px solid var(--bd);color:var(--ert);font-size:12px;display:flex;gap:6px;align-items:center;background:var(--ers)"><lu-i n="circle-x" size="14"></lu-i>Duplicate IP 10.0.0.11 on cp-2 and cp-3 — use 10.0.0.12 for cp-3</div></sc-if>
+</div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px">
+<div style="align-self:flex-start;font-size:11px;font-weight:700;color:var(--mu)">LIVE TOPOLOGY</div>
+<div style="{{ epBoxStyle }}"><lu-i n="waypoints" size="14"></lu-i>{{ epBoxLabel }}</div>
+<lu-i n="arrow-down" size="16"></lu-i>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><sc-for list="{{ cpNodes }}" as="n"><div style="padding:6px 10px;border-radius:8px;background:var(--prs);color:var(--prt);border:1px solid var(--pr);font:600 11px 'JetBrains Mono',monospace;display:flex;gap:5px;align-items:center"><lu-i n="server" size="13"></lu-i>{{ n }}</div></sc-for></div>
+<lu-i n="arrow-down" size="16"></lu-i>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><sc-for list="{{ wkNodes }}" as="n"><div style="padding:6px 10px;border-radius:8px;background:var(--s2);border:1px solid var(--bd);font:600 11px 'JetBrains Mono',monospace;display:flex;gap:5px;align-items:center"><lu-i n="server" size="13"></lu-i>{{ n }}</div></sc-for></div>
+<sc-if value="{{ noWorkers }}"><div style="font-size:11.5px;color:var(--mu)">No workers — control planes run workloads.</div></sc-if>
+</div></div>
+</sc-if>
+
+<sc-if value="{{ cur.fields.length }}">
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px">
+<sc-for list="{{ fields }}" as="f"><div style="display:flex;flex-direction:column;gap:5px"><div style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:12.5px"><span>{{ f.label }}</span><span title="Open docs" style="color:var(--mu);display:inline-flex"><lu-i n="help" size="13"></lu-i></span><sc-if value="{{ f.req }}"><span style="color:var(--ert)">*</span></sc-if><sc-if value="{{ f.ro }}"><span style="font-size:10.5px;color:var(--mu);font-weight:500">read-only</span></sc-if></div>
+<div style="{{ f.style }}"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.value }}</span><sc-if value="{{ f.sel }}"><lu-i n="down" size="14"></lu-i></sc-if><sc-if value="{{ f.copy }}"><span data-t="Public key copied" onClick="{{ copy }}" style="cursor:pointer;display:inline-flex"><lu-i n="copy" size="14"></lu-i></span></sc-if></div>
+<sc-if value="{{ f.err }}"><div style="font-size:12px;color:var(--ert);display:flex;gap:5px;align-items:flex-start"><lu-i n="circle-x" size="13"></lu-i><span>{{ f.err }}</span></div></sc-if>
+<sc-if value="{{ f.hint }}"><div style="font-size:12px;color:var(--mu)">{{ f.hint }}</div></sc-if></div></sc-for></div>
+</sc-if>
+
+<sc-if value="{{ cur.callout }}"><div style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:var(--prs);color:var(--tx)"><span style="color:var(--prt)"><lu-i n="info" size="17"></lu-i></span><span>{{ cur.callout }}</span></div></sc-if>
+
+<sc-if value="{{ toggles.length }}">
+<sc-for list="{{ toggles }}" as="g"><div><div style="font-weight:700;margin-bottom:8px">{{ g.group }}</div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px">
+<sc-for list="{{ g.items }}" as="t"><div data-k="{{ t.k }}" onClick="{{ tog }}" style="display:flex;align-items:center;gap:12px;padding:9px 14px;border-top:1px solid var(--bd);cursor:pointer"><div style="{{ t.sw }}"><div style="{{ t.knob }}"></div></div><b style="width:200px;font-weight:600">{{ t.label }}</b><span style="color:var(--mu);font-size:12px;flex:1">{{ t.d }}</span><span style="font-size:11px;font-weight:600;color:var(--mu);width:28px;text-align:right">{{ t.state }}</span></div></sc-for></div></div></sc-for>
+</sc-if>
+</sc-if>
+
+<!-- REVIEW -->
+<sc-if value="{{ isReview }}">
+<div style="display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:10px;background:var(--prs);color:var(--prt);display:flex;align-items:center;justify-content:center"><lu-i n="clipboard-check" size="22"></lu-i></div><div><div style="font:700 21px 'Hanken Grotesk'">Review</div><div style="color:var(--mu)">Check everything, then generate the project files.</div></div></div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px">
+<div style="padding:10px 14px;font-weight:700">Validation · 1 error, 2 warnings</div>
+<sc-for list="{{ issues }}" as="i"><div style="display:flex;gap:10px;align-items:center;padding:9px 14px;border-top:1px solid var(--bd)"><span style="{{ i.badge }}"><lu-i n="{{ i.icon }}" size="12"></lu-i>{{ i.lvl }}</span><span style="flex:1">{{ i.msg }}</span><div data-i="{{ i.step }}" onClick="{{ goStep }}" style="{{ btnS }}">Go to step {{ i.step }}</div></div></sc-for></div>
+<div style="display:grid;grid-template-columns:230px minmax(0,1fr);border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--sf);min-height:260px">
+<div style="padding:10px;border-right:1px solid var(--bd);font:12px/1.9 'JetBrains Mono',monospace"><sc-for list="{{ tree }}" as="f"><div style="{{ f.style }}"><lu-i n="{{ f.icon }}" size="13"></lu-i>{{ f.name }}</div></sc-for></div>
+<pre style="margin:0;padding:14px;background:var(--code);color:#D8DEF5;font:12px/1.65 'JetBrains Mono',monospace;overflow:auto">{{ yaml }}</pre></div>
+</sc-if>
+
+<!-- DEPLOY -->
+<sc-if value="{{ isDeploy }}">
+<div style="display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:10px;background:var(--prs);color:var(--prt);display:flex;align-items:center;justify-content:center"><lu-i n="rocket" size="22"></lu-i></div><div style="flex:1"><div style="font:700 21px 'Hanken Grotesk'">Deploy</div><div style="color:var(--mu)">prod-homelab · 3 control planes, 2 workers</div></div>
+<div style="display:flex;background:var(--s2);border-radius:8px;padding:2px;font-size:12px;font-weight:600"><sc-for list="{{ depStates }}" as="d"><div data-v="{{ d.v }}" onClick="{{ setDep }}" style="{{ d.style }}">{{ d.label }}</div></sc-for></div></div>
+<div style="display:flex;gap:4px;align-items:stretch"><sc-for list="{{ phases }}" as="p"><div style="{{ p.style }}"><span style="display:inline-flex"><lu-i n="{{ p.icon }}" size="15"></lu-i></span><div style="font-weight:600;font-size:12px">{{ p.name }}</div><div style="font-size:11px;opacity:.85">{{ p.text }}</div></div></sc-for></div>
+<sc-if value="{{ depFail }}"><div style="padding:12px 14px;border-radius:10px;background:var(--ers);border:1px solid var(--er);display:flex;gap:12px;align-items:flex-start"><span style="color:var(--ert)"><lu-i n="circle-x" size="18"></lu-i></span><div style="flex:1"><b>Bootstrap failed on cp-2 — SSH connection refused</b><div style="color:var(--mu);margin-top:2px">Port 22 is unreachable on 10.0.0.11. Check that sshd is running and the firewall allows port 22, then retry.</div></div><div data-d="retry" onClick="{{ openDlg }}" style="{{ btnP }}">Retry from Bootstrap</div></div></sc-if>
+<sc-if value="{{ depOk }}"><div style="padding:12px 14px;border-radius:10px;background:var(--oks);border:1px solid var(--ac);display:flex;gap:12px;align-items:center"><span style="color:var(--okt)"><lu-i n="circle-check" size="18"></lu-i></span><div style="flex:1"><b>5 of 5 nodes Ready</b><div style="display:flex;gap:6px;align-items:center;margin-top:3px;font:12px 'JetBrains Mono',monospace">~/clusters/prod-homelab/kubeconfig<span data-t="Kubeconfig path copied" onClick="{{ copy }}" style="cursor:pointer;display:inline-flex"><lu-i n="copy" size="13"></lu-i></span></div></div><div data-s="day2" onClick="{{ goScreen }}" style="{{ btnP }}">Open cluster</div></div></sc-if>
+<div style="border-radius:10px;overflow:hidden;border:1px solid var(--bd);display:flex;flex-direction:column;min-height:230px;flex:1">
+<div style="display:flex;gap:8px;align-items:center;padding:7px 12px;background:var(--sf);border-bottom:1px solid var(--bd)"><b style="font-size:12px;flex:1">Live log</b>
+<div onClick="{{ toggleLogErr }}" style="{{ errFilterSt }}"><lu-i n="{{ errFilterIcon }}" size="13"></lu-i>Errors only</div>
+<div data-t="Log copied" onClick="{{ copy }}" style="{{ btnS }}"><lu-i n="copy" size="13"></lu-i>Copy</div>
+<div data-d="cancel" onClick="{{ openDlg }}" style="{{ btnS }}"><lu-i n="x" size="13"></lu-i>Cancel</div></div>
+<div style="flex:1;background:var(--code);padding:10px 14px;font:12px/1.7 'JetBrains Mono',monospace;overflow:auto"><sc-for list="{{ logLines }}" as="l"><div style="{{ l.style }}"><span style="opacity:.5">{{ l.t }}</span>  {{ l.tag }} {{ l.msg }}</div></sc-for></div></div>
+<div style="display:flex;gap:8px"><div data-d="apply" onClick="{{ openDlg }}" style="{{ btnP }}"><lu-i n="rocket" size="14"></lu-i>Run tofu apply…</div></div>
+</sc-if>
+</div>
+
+<!-- context panel -->
+<sc-if value="{{ showPanel }}">
+<div style="width:280px;flex:none;background:var(--sf);border-left:1px solid var(--bd);overflow:auto;padding:14px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:12px;color:var(--mu)">CONTEXT</b><span style="color:var(--mu);display:inline-flex"><lu-i n="panel" size="15"></lu-i></span></div>
+<div><div style="font-weight:700;font-size:14px;margin-bottom:4px">{{ help.title }}</div><div style="color:var(--mu);font-size:12.5px">{{ help.what }}</div>
+<div style="margin-top:8px;font-size:12px;display:flex;flex-direction:column;gap:3px"><sc-for list="{{ help.pros }}" as="p"><div style="display:flex;gap:6px;color:var(--okt)"><lu-i n="check" size="13"></lu-i><span style="color:var(--tx)">{{ p }}</span></div></sc-for><sc-for list="{{ help.cons }}" as="p"><div style="display:flex;gap:6px;color:var(--wnt)"><lu-i n="alert" size="13"></lu-i><span style="color:var(--tx)">{{ p }}</span></div></sc-for></div>
+<div style="margin-top:8px;font-size:12px"><b>Use when:</b> <span style="color:var(--mu)">{{ help.when }}</span></div>
+<a href="#" style="font-size:12px;display:inline-flex;gap:4px;align-items:center;margin-top:6px;color:var(--prt)">Learn more<lu-i n="ext" size="12"></lu-i></a></div>
+<div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden"><div style="padding:8px 12px;background:var(--s2);font-weight:700;font-size:12px">Summary</div>
+<sc-for list="{{ summary }}" as="r"><div style="display:flex;justify-content:space-between;padding:5px 12px;font-size:12px;border-top:1px solid var(--bd)"><span style="color:var(--mu)">{{ r.k }}</span><span style="font:500 12px 'JetBrains Mono',monospace">{{ r.v }}</span></div></sc-for></div>
+<div style="border:1px solid var(--bd);border-radius:10px;padding:10px 12px;font-size:12px;display:flex;flex-direction:column;gap:5px"><b>Resource estimate</b><div style="display:flex;justify-content:space-between"><span style="color:var(--mu)">System per node</span><span style="font-family:'JetBrains Mono',monospace">{{ est.ram }} · {{ est.cpu }}</span></div>
+<sc-if value="{{ est.warn }}"><div style="display:flex;gap:6px;padding:6px 8px;border-radius:6px;background:var(--wns);color:var(--tx)"><span style="color:var(--wnt)"><lu-i n="alert" size="13"></lu-i></span>Nodes of 2 GB are too small for RKE2 — use 4 GB or pick k3s.</div></sc-if>
+<sc-if value="{{ isCloud }}"><div style="display:flex;justify-content:space-between;border-top:1px solid var(--bd);padding-top:5px"><span style="color:var(--mu)">Monthly cost</span><span><b style="font-family:'JetBrains Mono',monospace">{{ est.cost }}</b> <span style="color:var(--mu)">estimate</span></span></div></sc-if></div>
+</div>
+</sc-if>
+</div>
+<!-- footer -->
+<div style="height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--sf);border-top:1px solid var(--bd)">
+<div onClick="{{ back }}" style="{{ backSt }}"><lu-i n="arrow-left" size="15"></lu-i>{{ T.back }}</div>
+<div style="display:flex;align-items:center;gap:12px"><sc-if value="{{ blocked }}"><span style="color:var(--ert);font-size:12px;display:flex;gap:5px;align-items:center"><lu-i n="circle-x" size="14"></lu-i>{{ T.fix }}</span></sc-if>
+<div onClick="{{ next }}" style="{{ nextSt }}">{{ nextLabel }}<lu-i n="arrow-right" size="15"></lu-i></div></div></div>
+</sc-if>
+
+<!-- DAY 2 -->
+<sc-if value="{{ isDay2 }}">
+<div style="flex:1;overflow:auto;padding:28px 48px;display:flex;flex-direction:column;gap:18px">
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:20px 22px;display:flex;gap:22px;align-items:center">
+<div style="width:52px;height:52px;border-radius:12px;background:var(--oks);color:var(--okt);display:flex;align-items:center;justify-content:center"><lu-i n="server" size="26"></lu-i></div>
+<div style="flex:1"><div style="font:700 22px 'Hanken Grotesk'">prod-homelab</div><div style="color:var(--mu);font:12.5px 'JetBrains Mono',monospace">k3s v1.31.4 · Cilium · kube-vip → k8s.home.lab:6443</div></div>
+<span style="{{ okBadge }}"><lu-i n="circle-check" size="13"></lu-i>Healthy</span></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px"><sc-for list="{{ stats }}" as="s"><div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px"><div style="color:var(--mu);font-size:12px">{{ s.k }}</div><div style="font:700 22px 'Hanken Grotesk'">{{ s.v }}</div><div style="font-size:12px;color:var(--mu)">{{ s.sub }}</div></div></sc-for></div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px"><div style="padding:12px 16px;font-weight:700">Day-2 actions</div>
+<sc-for list="{{ day2 }}" as="a"><div style="display:flex;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--bd)"><lu-i n="{{ a.icon }}" size="19"></lu-i><div style="flex:1"><b>{{ a.label }}</b><div style="color:var(--mu);font-size:12px">{{ a.sub }}</div></div><div data-d="{{ a.d }}" onClick="{{ openDlg }}" style="{{ btnS }}">{{ a.btn }}</div></div></sc-for></div>
+</div>
+</sc-if>
+
+<!-- DOCS -->
+<sc-if value="{{ isDocs }}">
+<div style="flex:1;min-height:0;display:flex">
+<div style="width:240px;flex:none;border-right:1px solid var(--bd);background:var(--sf);padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto">
+<div style="display:flex;gap:7px;align-items:center;border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--mu);background:var(--bg)"><lu-i n="search" size="14"></lu-i><span style="color:var(--tx)">endpoint</span></div>
+<div style="font-size:11px;font-weight:700;color:var(--mu)">2 RESULTS</div>
+<div style="padding:7px 9px;border-radius:7px;background:var(--prs);font-size:12px"><b>Control-plane endpoint</b><div style="color:var(--mu)">…a stable <mark style="background:var(--gd);color:#1B2033">endpoint</mark> is required…</div></div>
+<div style="padding:7px 9px;border-radius:7px;font-size:12px"><b>Upgrade to HA</b><div style="color:var(--mu)">…reuses the same <mark style="background:var(--gd);color:#1B2033">endpoint</mark>…</div></div>
+<div style="font-size:11px;font-weight:700;color:var(--mu);margin-top:6px">CONTENTS</div>
+<sc-for list="{{ toc }}" as="t"><div style="{{ t.style }}">{{ t.label }}</div></sc-for></div>
+<div style="flex:1;overflow:auto;padding:30px 48px"><div style="max-width:680px;display:flex;flex-direction:column;gap:12px">
+<div style="font:12px 'JetBrains Mono',monospace;color:var(--mu)">Docs / Networking / #control-plane-endpoint</div>
+<div style="font:700 28px 'Hanken Grotesk';letter-spacing:-.01em">Control-plane endpoint <a href="#" style="font-weight:400;color:var(--mu)">#</a></div>
+<div style="font-size:14px;line-height:1.65">Every cluster needs one stable address that clients and nodes use to reach the API server. Set it up even with a single control plane so you can upgrade to HA later without re-issuing certificates.</div>
+<div style="font:700 17px 'Hanken Grotesk';margin-top:6px">DNS name (no VIP) <a href="#" style="font-weight:400;color:var(--mu)">#</a></div>
+<div style="font-size:14px;line-height:1.65">Point an A record at your control-plane IPs. Works on cloud and baremetal, and needs no L2 adjacency.</div>
+<pre style="margin:0;padding:14px;border-radius:10px;background:var(--code);color:#D8DEF5;font:12.5px/1.65 'JetBrains Mono',monospace">endpoint:
+  mode: dns
+  host: k8s.home.lab
+  port: 6443</pre></div></div>
+</div>
+</sc-if>
+
+<!-- STATES (dialogs & small states) -->
+<sc-if value="{{ isStates }}">
+<div style="flex:1;overflow:auto;padding:26px 36px;display:flex;flex-direction:column;gap:22px">
+<div style="font:700 20px 'Hanken Grotesk'">Dialogs & small states</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ dlgBtns }}" as="b"><div data-d="{{ b.d }}" onClick="{{ openDlg }}" style="{{ btnS }}">{{ b.label }}</div></sc-for><div data-t="Cluster configuration saved" onClick="{{ copy }}" style="{{ btnS }}">Show toast</div></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px"><b>Update dialog · Linux package</b><div style="color:var(--mu)">v0.9.0 is available. Your install is managed by a package manager.</div><div style="font:12px 'JetBrains Mono',monospace;padding:8px;background:var(--code);color:#D8DEF5;border-radius:6px">sudo apt upgrade kubernet-wizard</div><div style="display:flex;gap:8px"><div style="{{ btnP }}">Open release page<lu-i n="ext" size="13"></lu-i></div><div style="{{ btnG }}">Later</div></div></div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center"><div style="width:48px;height:48px;border-radius:12px;background:var(--s2);color:var(--mu);display:flex;align-items:center;justify-content:center"><lu-i n="folder-open" size="24"></lu-i></div><b>No projects yet</b><div style="color:var(--mu)">Start from a preset to see a cluster here.</div><div style="{{ btnP }}">Start from preset</div></div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:9px"><b>Loading skeleton</b><sc-for list="{{ skel }}" as="w"><div style="height:14px;border-radius:5px;background:var(--s2);width:{{ w }};animation:kwpulse 1.4s infinite"></div></sc-for></div></div>
+<div style="display:flex;flex-direction:column;gap:8px;max-width:420px"><b>Toasts</b><sc-for list="{{ toastsDemo }}" as="t"><div style="display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--sf);border:1px solid var(--bd);box-shadow:0 4px 14px rgba(0,0,0,.12)"><span style="{{ t.color }}"><lu-i n="{{ t.icon }}" size="17"></lu-i></span><span style="flex:1">{{ t.msg }}</span><lu-i n="x" size="14"></lu-i></div></sc-for></div>
+</div></sc-if>
+
+<!-- COMPONENTS -->
+<sc-if value="{{ isComps }}">
+<div style="flex:1;overflow:auto;padding:26px 36px;display:flex;flex-direction:column;gap:24px">
+<div style="font:700 20px 'Hanken Grotesk'">Component sheet & tokens</div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px">
+<div style="display:flex;flex-direction:column;gap:10px"><b>Chip group</b><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ demoChips }}" as="c"><div style="{{ c.style }}"><b>{{ c.label }}</b><sc-if value="{{ c.rec }}"><span style="font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--oks);color:var(--okt)">Recommended</span></sc-if></div></sc-for></div><div style="font-size:12px;color:var(--mu)">default · selected · recommended · disabled (dashed, lock + tooltip)</div></div>
+<div style="display:flex;flex-direction:column;gap:6px"><b>Field with help + inline error</b><div style="display:flex;gap:6px;align-items:center;font-weight:600;font-size:12.5px">Pod CIDR <lu-i n="help" size="13"></lu-i></div><div style="display:flex;padding:8px 10px;border:1.5px solid var(--er);border-radius:8px;background:var(--sf);font:12.5px 'JetBrains Mono',monospace">10.0.0.0/16</div><div style="font-size:12px;color:var(--ert);display:flex;gap:5px"><lu-i n="circle-x" size="13"></lu-i>Pod CIDR overlaps node subnet 10.0.0.0/24 — try 10.42.0.0/16</div></div>
+<div style="display:flex;flex-direction:column;gap:6px"><b>Stepper item states</b><div style="width:200px;display:flex;flex-direction:column;gap:2px"><sc-for list="{{ demoSteps }}" as="s"><div style="{{ s.style }}"><div style="{{ s.badge }}"><lu-i n="{{ s.icon }}" size="15"></lu-i></div><div style="flex:1"><div style="font-weight:600">{{ s.label }}</div><div style="font-size:11px;display:flex;gap:3px;align-items:center"><lu-i n="{{ s.sIcon }}" size="11"></lu-i>{{ s.sText }}</div></div></div></sc-for></div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><b>Status badges</b><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ badges }}" as="b"><span style="{{ b.style }}"><lu-i n="{{ b.icon }}" size="13"></lu-i>{{ b.label }}</span></sc-for></div>
+<b style="margin-top:6px">Log line styles</b><div style="background:var(--code);border-radius:8px;padding:10px 12px;font:12px/1.7 'JetBrains Mono',monospace"><sc-for list="{{ logDemo }}" as="l"><div style="{{ l.style }}">{{ l.msg }}</div></sc-for></div></div></div>
+<div><b>Design tokens</b><div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:8px"><sc-for list="{{ tokens }}" as="t"><div style="border:1px solid var(--bd);border-radius:8px;overflow:hidden;background:var(--sf)"><div style="height:34px;background:{{ t.v }}"></div><div style="padding:5px 7px;font:11px 'JetBrains Mono',monospace"><b>{{ t.n }}</b><div style="color:var(--mu)">{{ t.hex }}</div></div></div></sc-for></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px;font-size:12px"><div style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px"><b>Radius</b><div style="font-family:'JetBrains Mono',monospace;color:var(--mu)">sm 6 · md 8 · lg 10 · xl 14 · pill 999</div></div><div style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px"><b>Spacing (4px base)</b><div style="font-family:'JetBrains Mono',monospace;color:var(--mu)">4 · 8 · 12 · 16 · 24 · 32 · 48</div></div><div style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px"><b>Type</b><div style="font-family:'JetBrains Mono',monospace;color:var(--mu)">Hanken Grotesk 11/12/13/15/21/28 · JetBrains Mono 12</div></div></div></div>
+<div style="background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px;max-width:300px;display:flex;flex-direction:column;gap:6px"><b>Context panel (excerpt)</b><div style="font-weight:700;font-size:14px">DNS name (no VIP)</div><div style="color:var(--mu);font-size:12.5px">One DNS record resolves to your control planes.</div><div style="display:flex;gap:6px;color:var(--okt);font-size:12px"><lu-i n="check" size="13"></lu-i><span style="color:var(--tx)">Works everywhere, no L2 needed</span></div><div style="display:flex;gap:6px;color:var(--wnt);font-size:12px"><lu-i n="alert" size="13"></lu-i><span style="color:var(--tx)">No automatic failover without health-checked DNS</span></div></div>
+</div></sc-if>
+
+<!-- tooltip -->
+<sc-if value="{{ hasTip }}"><div style="{{ tipStyle }}">{{ tipText }}</div></sc-if>
+<!-- toast -->
+<sc-if value="{{ hasToast }}"><div style="position:absolute;right:20px;bottom:76px;display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--tx);color:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:60"><lu-i n="circle-check" size="16"></lu-i>{{ toastText }}</div></sc-if>
+
+<!-- TOUR -->
+<sc-if value="{{ tour }}">
+<div style="position:absolute;inset:0;z-index:70">
+<div style="position:absolute;left:{{ tourBox.l }}px;top:{{ tourBox.t }}px;width:{{ tourBox.w }}px;height:{{ tourBox.h }}px;border-radius:10px;border:2px solid #FFD43B;box-shadow:0 0 0 2000px rgba(8,12,30,.66)"></div>
+<div style="position:absolute;left:{{ tourBox.cl }}px;top:{{ tourBox.ct }}px;width:300px;padding:16px;border-radius:12px;background:var(--sf);color:var(--tx);border:1px solid var(--bd);box-shadow:0 12px 32px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px">{{ tourBox.title }}</b><span style="font:12px 'JetBrains Mono',monospace;color:var(--mu)">{{ tourN }}/9</span></div>
+<div style="color:var(--mu)">{{ tourBox.body }}</div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><div onClick="{{ tourSkip }}" style="color:var(--mu);cursor:pointer;font-size:12px">Skip</div><span style="flex:1"></span><div data-d="-1" onClick="{{ tourGo }}" style="{{ btnS }}">Back</div><div data-d="1" onClick="{{ tourGo }}" style="{{ btnP }}">{{ tourNext }}</div></div></div></div>
+</sc-if>
+
+<!-- MODAL -->
+<sc-if value="{{ hasDlg }}">
+<div onClick="{{ closeDlg }}" style="position:absolute;inset:0;background:rgba(8,12,30,.55);z-index:80;display:flex;align-items:center;justify-content:center">
+<div onClick="{{ stop }}" style="width:480px;max-height:90%;overflow:auto;background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.4)">
+<div style="display:flex;gap:10px;align-items:center"><span style="{{ dlg.iconSt }}"><lu-i n="{{ dlg.icon }}" size="19"></lu-i></span><b style="font-size:16px;flex:1">{{ dlg.title }}</b><span onClick="{{ closeDlg }}" style="cursor:pointer;color:var(--mu)"><lu-i n="x" size="17"></lu-i></span></div>
+<div style="color:var(--mu)">{{ dlg.body }}</div>
+<sc-if value="{{ dlg.impact.length }}"><div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden"><div style="padding:7px 12px;background:var(--s2);font-weight:700;font-size:12px">{{ dlg.impactTitle }}</div><sc-for list="{{ dlg.impact }}" as="i"><div style="padding:6px 12px;border-top:1px solid var(--bd);font:12px 'JetBrains Mono',monospace;{{ i.st }}">{{ i.t }}</div></sc-for></div></sc-if>
+<sc-if value="{{ dlg.isUpdate }}"><div style="font-size:12px;padding:10px 12px;background:var(--s2);border-radius:8px"><b>What's new</b><div style="color:var(--mu)">· Upgrade to HA from the cluster screen<br>· Hetzner private networks<br>· Faster prerequisite check</div></div><div><div style="height:8px;border-radius:999px;background:var(--s2);overflow:hidden"><div style="width:62%;height:100%;background:var(--pr)"></div></div><div style="font-size:12px;color:var(--mu);margin-top:4px">Downloading 62% · 38 MB of 61 MB</div></div></sc-if>
+<sc-if value="{{ dlg.isSettings }}"><div style="display:flex;flex-direction:column;gap:12px"><sc-for list="{{ dlg.rows }}" as="r"><div style="display:flex;align-items:center;justify-content:space-between"><span>{{ r.k }}</span><span style="padding:5px 12px;border:1px solid var(--bd);border-radius:8px;font-weight:600;font-size:12px;display:inline-flex;gap:6px;align-items:center">{{ r.v }}<lu-i n="down" size="13"></lu-i></span></div></sc-for></div></sc-if>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><div onClick="{{ closeDlg }}" style="{{ btnG }}">{{ dlg.cancel }}</div><div onClick="{{ confirmDlg }}" style="{{ dlg.btnSt }}">{{ dlg.confirm }}</div></div>
+</div></div></sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;windowSize&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;1280×820&quot;,&quot;1024×700&quot;],&quot;default&quot;:&quot;1280×820&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Window&quot;}}">
+class Component extends DCLogic {
+  state = {z:1,screen:'wizard',theme:'light',mode:'basic',step:4,reached:4,err:true,cloud:false,cp:'3',workers:2,lang:'en',tip:null,focus:null,dlg:null,toast:null,tour:false,tourN:3,dep:'fail',logErr:false,feat:{ls:1,lp:0,ms:1,vm:1,lk:0,cm:1,ky:0,ev:0,vl:0,ds:0,nl:1,ca:0,vc:0,lh:0,oe:0,rc:0,cs:0},
+    sel:{cp:'3',target:'bare',prov:'hetzner',method:'tofu',distro:'k3s',os:'24',ep:'dns',lb:'metallb',lbm:'l2',cni:'cilium',kp:'ebpf',ing:'traefik',git:'argo',tune:'min',prov2:'github'}};
+  STEPS=[['Project','folder-open','Project','Name your cluster and choose where its files are written.'],['Target','cloud','Target','Where will the cluster run?'],['Distro','boxes','Distribution','Pick the Kubernetes distribution.'],['Topology','server','Topology','Decide how many nodes and what they run.'],['Endpoint & LB','waypoints','Endpoint & load balancing','A stable address for the API and for services.'],['Network','network','Network','Choose the CNI and, in Advanced, address ranges.'],['Ingress','route','Ingress','How HTTP traffic enters the cluster.'],['Features','puzzle','Features','Optional add-ons. Safe defaults are on.'],['GitOps','git-branch','GitOps','Let a Git repo drive the cluster after bootstrap.'],['Tuning','gauge','Tuning','Choose a resource profile.'],['Review','clipboard-check','Review',''],['Deploy','rocket','Deploy','']];
+  setSel(k,v){this.setState(s=>({sel:{...s.sel,[k]:v}}))}
+  R(){return this.props.windowSize==='1024×700'?[1024,700]:[1280,820]}
+  chipStyle(sel,dis,card){return `display:flex;flex-direction:column;gap:3px;padding:${card?'12px 14px':'8px 12px'};border-radius:10px;background:${sel?'var(--prs)':'var(--sf)'};border:${dis?'1.5px dashed var(--bd)':sel?'1.5px solid var(--pr)':'1.5px solid var(--bd)'};opacity:${dis?.6:1};cursor:${dis?'not-allowed':'pointer'};font-size:13px`}
+  badgeSt(k){const m={ok:'--oks;--okt',warn:'--wns;--wnt',err:'--ers;--ert',mute:'--s2;--mu',pr:'--prs;--prt'}[k].split(';');return `display:inline-flex;gap:4px;align-items:center;padding:2px 9px;border-radius:999px;background:var(${m[0]});color:var(${m[1]});font-size:11.5px;font-weight:600`}
+  fld(label,value,o={}){return {label,value,req:o.req,ro:o.ro,sel:o.sel,copy:o.copy,err:o.err,hint:o.hint,style:`display:flex;align-items:center;gap:6px;padding:8px 10px;border:1.5px solid ${o.err?'var(--er)':'var(--bd)'};border-radius:8px;background:${o.ro?'var(--s2)':'var(--sf)'};font:${o.mono===false?'13px':'12.5px'} ${o.mono===false?"'Hanken Grotesk'":"'JetBrains Mono',monospace"}`}}
+  chip(k,v,label,o={}){const s=this.state.sel,sel=o.multi?false:s[k]===v,dis=!!o.dis;return {k,v,label,sel,dis:dis?'1':'',rec:o.rec,soon:o.soon,lock:dis&&!o.soon,d:o.d,sub:o.sub,reason:o.reason,tip:o.tip||'',focus:o.focus||'',style:this.chipStyle(sel,dis,!!(o.d||o.sub))}}
+  grp(label,chips,o={}){return {label,chips,adv:o.adv,note:o.note,grid:`display:grid;grid-template-columns:repeat(auto-fill,minmax(${o.min||150}px,1fr));gap:8px`}}
+  content(){
+    const S=this.state,s=S.sel,C=S.cloud,adv=S.mode==='advanced',c=(k,v,l,o)=>this.chip(k,v,l,o),st=S.step,f=(...a)=>this.fld(...a),g=(...a)=>this.grp(...a);
+    const out={groups:[],fields:[],toggles:[],callout:null};
+    const cloudTip='Cloud networks cannot float a virtual IP — use the cloud load balancer or a DNS name';
+    if(st===1)out.fields=[f('Project name','prod-homelab',{req:1,mono:false}),f('Output folder','~/clusters/prod-homelab',{hint:'Folder will be created if missing.'}),f('Existing cluster.yaml','Open cluster.yaml…',{mono:false,hint:'Optional — continue editing a saved design.'})];
+    if(st===2){out.groups=[g('Target',[c('target','bare','Baremetal / existing servers',{d:'SSH into machines you already run.'}),c('target','cloud','Cloud',{d:'Provision VMs with OpenTofu.'})],{min:230})];
+      if(s.target==='cloud')out.groups.push(g('Provider',['aws:AWS','gcp:Google Cloud','azure:Azure','linode:Akamai/Linode','do:DigitalOcean','hetzner:Hetzner','proxmox:Proxmox'].map(x=>c('prov',x.split(':')[0],x.split(':')[1],{rec:x.startsWith('hetzner'),focus:x.split(':')[0]}))),g('Provisioning',[c('method','tofu','Create with OpenTofu',{rec:1,reason:'Repeatable and destroyable'}),c('method','vms','Use existing VMs')],{min:220}));
+      if(s.target==='cloud')out.fields=[f('Region','fsn1 · Falkenstein',{sel:1,mono:false}),f('Image','ubuntu-24.04',{sel:1}),f('Control-plane size','cx32 · 4 vCPU · 8 GB',{sel:1}),f('Worker size','cx32 · 4 vCPU · 8 GB',{sel:1}),f('Credentials','HCLOUD_TOKEN',{ro:1,hint:'Reads HCLOUD_TOKEN from environment'})]}
+    if(st===3){out.groups=[g('Ready now',[c('distro','kubeadm','kubeadm',{d:'Upstream, full control.',sub:'v1.31 ▾',focus:'kubeadm'}),c('distro','k3s','k3s',{d:'Light, one binary, fast.',sub:'v1.31.4 ▾',rec:1,reason:'Smallest footprint',focus:'k3s'}),c('distro','rke2','RKE2',{d:'Hardened, CIS-ready.',sub:'v1.31.3 ▾',focus:'rke2'})],{min:200})];
+      out.groups.push(g('Planned',['k0s','MicroK8s','Charmed','KubeSphere','Deckhouse','KFD','Typhoon','MetalK8s','KubeCube'].map(n=>c('x',n,n,{dis:1,soon:1,tip:n+' support is planned'})),{min:130}))}
+    if(st===4){out.groups=[g('Control planes',[c('cp','1','1 control plane',{d:'Simple, no failover.'}),c('cp','3','3 · HA',{rec:1,d:'Survives one failure.',reason:'Quorum with fewest machines'}),c('cp','5','5 · HA',{d:'Survives two failures.'})],{min:170}),
+      g('Node OS',[c('os','22','Ubuntu 22.04'),c('os','24','Ubuntu 24.04',{rec:1}),c('os','26','Ubuntu 26.04'),c('os','d12','Debian 12'),c('os','d13','Debian 13'),c('os','rh','RHEL / Rocky / Alma 9')],{min:130})]}
+    if(st===5){const vipDis=C;
+      out.groups=[g('Control-plane endpoint',[c('ep','vip','kube-vip (VIP)',{dis:vipDis,tip:cloudTip,focus:'vip',d:'Floating IP on your LAN.'}),c('ep','ha','keepalived + HAProxy',{dis:vipDis,tip:cloudTip,focus:'haproxy',d:'Classic VIP with a proxy.'}),c('ep','clb','Cloud load balancer',{rec:C,focus:'clb',d:'Managed by your provider.',reason:C?'Works on every cloud network':''}),c('ep','dns','DNS name (no VIP)',{rec:!C,focus:'dns',d:'One record, no L2 needed.',reason:!C?'Works on any network':''})],{min:200,note:'A stable endpoint is required even for 1 control plane so you can upgrade to HA later.'}),
+      g('Service LoadBalancer',[c('lb','metallb','MetalLB',{dis:C,tip:'MetalLB needs L2/BGP access — not available on cloud networks',rec:!C}),c('lb','kvcp','kube-vip cloud provider',{dis:C,tip:'Needs a floating IP — not available on cloud networks'}),c('lb','ccm','Cloud CCM',{dis:!C,tip:'Cloud CCM requires a cloud target',rec:C}),c('lb','none','None')],{min:170})];
+      if(!C&&s.lb==='metallb')out.groups.push(g('MetalLB mode',[c('lbm','l2','L2',{rec:1,reason:'No router config'}),c('lbm','bgp','BGP',{d:'Needs a BGP router.'})],{min:150}));
+      const ep=s.ep;out.fields=[];
+      if(ep==='vip'||ep==='ha')out.fields.push(f('Virtual IP','10.0.0.5',{req:1}),f('Interface','eth0',{req:1}));
+      if(ep==='dns')out.fields.push(f('DNS name','k8s.home.lab',{req:1,mono:true,err:S.err?'DNS name is required — try k8s.home.lab':null}));
+      if(S.err&&ep==='dns')out.fields[0].value='';
+      if(!C&&s.lb==='metallb')out.fields.push(f('Address pool','10.0.0.200 – 10.0.0.220'));}
+    if(st===6){out.groups=[g('CNI',[c('cni','cilium','Cilium',{rec:1,d:'eBPF, policies, Hubble.',sub:'~420 MB / node',reason:'Replaces kube-proxy',focus:'cilium'}),c('cni','calico','Calico',{d:'Mature policies, BGP.',sub:'~260 MB / node',focus:'calico'}),c('cni','flannel','Flannel',{d:'Simplest overlay.',sub:'~60 MB / node',focus:'flannel'}),c('cni','canal','Canal',{d:'Flannel + Calico policy.',sub:'~230 MB / node',focus:'canal'})],{min:200})];
+      if(adv){out.groups.push(g('kube-proxy mode',[c('kp','ipt','iptables'),c('kp','ipvs','ipvs'),c('kp','none','none',{dis:s.cni!=='cilium',tip:'kube-proxy none requires Cilium'})],{adv:1,min:130}));
+        const e=S.err;out.fields=[f('Pod CIDR',e?'10.0.0.0/16':'10.42.0.0/16',{err:e?'Pod CIDR overlaps node subnet 10.0.0.0/24 — try 10.42.0.0/16':null}),f('Service CIDR','10.43.0.0/16'),f('Cluster DNS IP','10.43.0.10',{ro:1}),f('Domain','cluster.local'),f('MTU','1450'),f('Dual-stack','Off',{sel:1,mono:false})]}}
+    if(st===7)out.groups=[g('Ingress controller',[['traefik','Traefik',1],['envoy','Envoy Gateway'],['cilgw','Cilium Gateway'],['ngf','NGINX Gateway Fabric'],['hap','HAProxy'],['contour','Contour'],['none','None']].map(x=>c('ing',x[0],x[1],{rec:x[2],focus:x[0]})),{min:170})],out.fields=[f('Default IngressClass','On',{sel:1,mono:false,hint:'Ingress objects without a class use this controller.'})];
+    if(st===8){const T=(k,label,d)=>({k,label,d,sw:`width:34px;height:20px;border-radius:999px;background:${S.feat[k]?'var(--pr)':'var(--bd)'};padding:2px;display:flex;justify-content:${S.feat[k]?'flex-end':'flex-start'};flex:none`,knob:'width:16px;height:16px;border-radius:50%;background:#fff',state:S.feat[k]?'On':'Off'});
+      out.toggles=[{group:'Storage',items:[T('ls','local-path','Node-local volumes'),T('lp','Longhorn','Replicated block storage'),T('oe','OpenEBS','Container-attached storage'),T('rc','Rook-Ceph','Distributed storage'),T('cs','Cloud CSI','Provider volumes')]},{group:'Observability',items:[T('ms','metrics-server','kubectl top & HPA'),T('vm','VictoriaMetrics','Metrics and alerts'),T('lh','Loki / Vector','Logs')]},{group:'Security',items:[T('cm','cert-manager','Automatic TLS'),T('ky','Kyverno','Policy engine'),T('ev','external-secrets / sealed-secrets','Secrets from Git or vaults')]},{group:'Ops',items:[T('vl','Velero','Backup and restore'),T('ds','descheduler','Rebalance pods'),T('nl','node-local-dns','DNS cache'),T('ca','cluster-autoscaler','Cloud only'),T('vc','vcluster','Virtual clusters')]}]}
+    if(st===9){out.groups=[g('GitOps tool',[c('git','none','None'),c('git','argo','Argo CD',{rec:1,reason:'Best UI for newcomers'}),c('git','flux','Flux')],{min:160})];
+      if(s.git!=='none')out.fields=[f('Repo provider','GitHub',{sel:1,mono:false}),f('Repository URL','git@github.com:acme/prod-homelab.git'),f('Branch','main'),f('Path','clusters/prod-homelab'),f('Deploy key (ed25519, public)','ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA… wizard',{copy:1,ro:1,hint:'Add this as a read-only deploy key on the repo.'})]}
+    if(st===10){out.groups=[g('Profile',[c('tune','min','Minimal footprint',{rec:1,d:'Lower limits, fewer replicas, 10s scrape.',reason:'Best for small nodes'}),c('tune','bal','Balanced',{d:'Default limits, 2 replicas.'}),c('tune','thr','Throughput',{d:'Higher limits, tuned sysctls.'})],{min:220})];
+      if(adv)out.fields=[f('kubelet max pods','110'),f('etcd quota (GB)','2'),f('sysctl overrides','net.core.somaxconn=4096')]}
+    out.cur={icon:this.STEPS[st-1][1],title:this.STEPS[st-1][2],desc:this.STEPS[st-1][3],fields:out.fields,callout:st===5?'The endpoint you choose here is baked into every certificate and kubeconfig.':st===7&&s.ing==='none'?'':null};
+    if(st===5&&C)out.cur.callout='Cloud network detected: VIP modes are disabled. DNS name and Cloud load balancer remain available.';
+    return out}
+  HELP={dns:['DNS name (no VIP)','One DNS record resolves to your control planes.',['Works everywhere, no L2 needed','Easy to move to HA'],['No automatic failover without health-checked DNS'],'Cloud or routed networks, or when you control DNS.'],vip:['kube-vip (VIP)','A floating IP held by one control plane at a time.',['Automatic failover','No extra proxy'],['Needs L2 or BGP on the network'],'Baremetal and homelab LANs.'],haproxy:['keepalived + HAProxy','Classic VIP with a local proxy per control plane.',['Battle-tested','Health-checked backends'],['More moving parts'],'Teams that already run HAProxy.'],clb:['Cloud load balancer','Your provider hosts the API endpoint.',['Managed, highly available'],['Billed monthly'],'Any cloud target.'],cilium:['Cilium','eBPF networking with policies and Hubble observability.',['Replaces kube-proxy','Rich policies'],['Higher memory use','Newer kernel preferred'],'Most clusters with 4 GB+ nodes.'],calico:['Calico','Mature policy engine with optional BGP.',['Stable','BGP peering'],['More components'],'Existing Calico experience.'],flannel:['Flannel','The simplest overlay network.',['Tiny footprint'],['No network policies'],'Dev clusters and learning.'],canal:['Canal','Flannel networking with Calico policies.',['Policies on a simple overlay'],['Two projects to track'],'Policies without BGP.'],k3s:['k3s','Single-binary, lightweight Kubernetes.',['~600 MB RAM','Fast installs'],['Fewer knobs than kubeadm'],'Homelab, edge, small production.'],kubeadm:['kubeadm','The upstream bootstrap tool.',['Maximum control','Closest to upstream'],['Most manual upkeep'],'Teams that want vanilla Kubernetes.'],rke2:['RKE2','Hardened, security-focused distribution.',['CIS profile','FIPS option'],['Needs 4 GB+ nodes'],'Regulated or on-prem production.'],traefik:['Traefik','Simple ingress with automatic discovery.',['Ships with k3s'],['Fewer Gateway API features'],'Quick, simple setups.'],envoy:['Envoy Gateway','Gateway API implementation on Envoy.',['Modern API','Strong L7 features'],['More to learn'],'Production edge traffic.']};
+  help(){const S=this.state,def={1:'k3s',2:'dns',3:'k3s',4:'dns',5:'dns',6:'cilium',7:'traefik',8:'k3s',9:'k3s',10:'k3s'}[S.step],key=S.focus&&this.HELP[S.focus]?S.focus:(S.step===4?null:def);
+    const h=key?this.HELP[key]:null;if(!h)return {title:'Topology',what:'Control planes run the API and etcd. Workers run your apps. Odd counts keep etcd quorum.',pros:['3 control planes survive one failure'],cons:['1 control plane has no failover'],when:'Choose 3 for anything you depend on.'};
+    return {title:h[0],what:h[1],pros:h[2],cons:h[3],when:h[4]}}
+  componentDidMount(){this._r=()=>{const W=this.R()[0];this.setState({z:Math.min(1,Math.max(.4,(window.innerWidth-4)/(W+40)))})};this._r();window.addEventListener('resize',this._r)}
+  componentWillUnmount(){window.removeEventListener('resize',this._r)}
+  renderVals(){
+    const S=this.state,s=S.sel,[W,H]=this.R(),dark=S.theme==='dark',C=S.cloud,sc=S.screen;
+    const V=dark?{bg:'#0E1220',sf:'#151A2C',s2:'#1D2338',bd:'#2A3150',tx:'#E8EBF5',mu:'#A0A9C4',pr:'#4C6AE8',prt:'#9DB0FF',prs:'#1E2750',ac:'#12B8A6',okt:'#4FD9C8',oks:'#0F2E2E',wnt:'#F3B84B',wns:'#33290F',ert:'#FF8A8A',ers:'#3A1B22',er:'#E5484D',gd:'#FFD43B',gds:'#3A3210',gdt:'#FFD43B',code:'#0A0D18'}:{bg:'#F5F6FB',sf:'#FFFFFF',s2:'#EDF0F7',bd:'#D9DEEB',tx:'#1A2036',mu:'#586078',pr:'#3B5BDB',prt:'#2F49B5',prs:'#E8ECFC',ac:'#12B8A6',okt:'#0A7A6F',oks:'#E1F7F4',wnt:'#9A5B00',wns:'#FFF3D1',ert:'#B42323',ers:'#FDECEC',er:'#D93636',gd:'#FFD43B',gds:'#FFF3C2',gdt:'#6B5200',code:'#101528'};
+    const rootStyle=Object.entries(V).map(([k,v])=>`--${k}:${v}`).join(';')+';padding:20px;width:'+(W+40)+'px;zoom:'+S.z;
+    const T=({en:{back:'Back',next:'Next',fix:'Fix errors before continuing',basic:'Basic',adv:'Advanced',upd:'Update available'},id:{back:'Kembali',next:'Lanjut',fix:'Perbaiki galat sebelum lanjut',basic:'Dasar',adv:'Lanjutan',upd:'Pembaruan tersedia'}})[S.lang];
+    const btn=(bg,fg,bd)=>`display:inline-flex;gap:6px;align-items:center;padding:8px 16px;border-radius:8px;background:${bg};color:${fg};border:1px solid ${bd};font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap`;
+    const btnP=btn('var(--pr)','#fff','var(--pr)'),btnG=btn('transparent','var(--tx)','var(--bd)'),btnS=btn('var(--sf)','var(--tx)','var(--bd)')+';padding:5px 12px;font-size:12px';
+    const tabsDef=[['Welcome','welcome'],['Home','home'],['Wizard','wizard',4],['Topology','wizard',4],['Endpoint & LB','wizard',5],['Review','wizard',11],['Deploy','wizard',12],['Day-2','day2'],['Docs','docs'],['Dialogs & states','states'],['Components','comps']];
+    const act=(t)=>t[1]===sc&&(t[2]==null||t[2]===S.step)&&!(t[0]==='Wizard'&&S.step===4&&false);
+    const tabs=tabsDef.map((t,i)=>{const on=t[1]===sc&&(t[2]==null||t[2]===S.step);return {label:t[0],s:t[1],step:String(t[2]||''),style:`padding:5px 11px;border-radius:6px;cursor:pointer;background:${on?'#3B5BDB':'#fff'};color:${on?'#fff':'#1B2033'}`}});
+    // dedupe: Wizard tab -> step 1
+    tabs[2].step='1';
+    const navItems=[['Home','home'],['Wizard','wizard'],['Cluster','day2'],['Docs','docs']].map(n=>{const on=n[1]===sc;return {label:n[0],s:n[1],style:`padding:6px 12px;border-radius:7px;cursor:pointer;font-weight:600;background:${on?'var(--prs)':'transparent'};color:${on?'var(--prt)':'var(--mu)'}`}});
+    const stepErr=S.err&&[4,5,6].includes(S.step)&&!(S.step===5&&s.ep!=='dns')&&!(S.step===6&&S.mode!=='advanced');
+    const stat=i=>{if(i>S.reached)return['lock','Locked','lock'];if(i===S.step&&stepErr)return['circle-x','Error','err'];if(i===S.step)return['loader','In progress','cur'];if(i===3)return['alert','Warning','warn'];if(i===4&&S.err&&s.ep==='dns'&&S.step!==4)return['circle-x','Error','err'];return['circle-check','Done','ok']};
+    const steps=this.STEPS.map((x,k)=>{const i=k+1,[sI,sT,kind]=stat(i),cur=i===S.step;const col={lock:'var(--mu)',err:'var(--ert)',warn:'var(--wnt)',ok:'var(--okt)',cur:'var(--prt)'}[kind];
+      return {i,label:x[0],icon:x[1],sIcon:sI==='loader'?'sparkles':sI,sText:sT,tip:kind==='lock'?'Finish the current step first':'',style:`display:flex;gap:9px;align-items:center;padding:6px 8px;border-radius:8px;cursor:${kind==='lock'?'not-allowed':'pointer'};background:${cur?'var(--prs)':'transparent'};color:${kind==='lock'?'var(--mu)':'var(--tx)'};opacity:${kind==='lock'?.7:1};outline:${cur?'1.5px solid var(--pr)':'none'}`,badge:`width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:${cur?'var(--pr)':'var(--s2)'};color:${cur?'#fff':col}`}});
+    const isWiz=sc==='wizard',cfg=isWiz&&S.step<=10,ct=cfg?this.content():{groups:[],fields:[],toggles:[],cur:{fields:[]}};
+    const cp=+s.cp;
+    const inventory=[...Array(cp)].map((_,i)=>({name:'cp-'+(i+1),ip:'10.0.0.'+(10+i),role:'control',dup:false})).concat([...Array(S.workers)].map((_,i)=>({name:'w-'+(i+1),ip:'10.0.0.'+(20+i),role:'worker'})));
+    
+    const topoErr=S.err&&S.step===4&&cp>=3;
+    if(topoErr){inventory[2].ip='10.0.0.11'}
+    inventory.forEach((n,i)=>{n.ipStyle=topoErr&&(i===1||i===2)?'border:1.5px solid var(--er);padding:2px 5px;border-radius:5px;background:var(--ers)':''});
+    const epL={vip:'VIP · kube-vip 10.0.0.5',ha:'VIP · HAProxy 10.0.0.5',clb:'Cloud load balancer',dns:'DNS · k8s.home.lab'}[s.ep];
+    const base={k3s:.6,kubeadm:1.1,rke2:1.4}[s.distro]+{cilium:.42,calico:.26,flannel:.06,canal:.23}[s.cni];
+    const est={ram:base.toFixed(1)+' GB',cpu:(s.distro==='kubeadm'?'0.6':'0.3')+' vCPU',warn:s.distro==='rke2',cost:'€'+((cp+S.workers)*6.8).toFixed(0)+' / mo'};
+    const summary=[['Distro',s.distro],['Nodes',cp+' cp + '+S.workers+' w'],['HA',cp>1?'Yes':'No'],['CNI',s.cni],['Endpoint',s.ep],['Service LB',C?'Cloud CCM':s.lb],['Ingress',s.ing],['GitOps',s.git]].map(x=>({k:x[0],v:x[1]}));
+    const blocked=S.step<=10&&stepErr,last=S.step===12,
+      nextLabel=S.step===11?'Generate project':S.step===10?T.next+' · Review':S.step<10?T.next+' · '+this.STEPS[S.step][0]:'Done';
+    const dis=blocked||last;
+    const dlgs={apply:{icon:'rocket',title:'Apply infrastructure plan?',body:'tofu apply will create real resources. Cloud usage is billed.',impactTitle:'tofu plan',impact:[{t:'+ hcloud_server.cp[0..2]',st:'color:var(--okt)'},{t:'+ hcloud_server.worker[0..1]',st:'color:var(--okt)'},{t:'+ hcloud_network.main',st:'color:var(--okt)'},{t:'Plan: 6 to add, 0 to change, 0 to destroy',st:'font-weight:600'}],confirm:'Apply',danger:true},
+      ha:{icon:'server',title:'Upgrade to HA?',body:'Adds 2 control planes and migrates etcd to a 3-member quorum. The API stays up.',impactTitle:'Impact',impact:[{t:'+ 2 control-plane nodes',st:'color:var(--okt)'},{t:'~ etcd: 1 → 3 members',st:'color:var(--wnt)'},{t:'~ endpoint k8s.home.lab unchanged',st:''}],confirm:'Upgrade to HA'},
+      workers:{icon:'plus',title:'Add workers',body:'Provision and join new worker nodes.',impactTitle:'Impact',impact:[{t:'+ 1 worker (w-3)',st:'color:var(--okt)'},{t:'No downtime',st:''}],confirm:'Add worker'},
+      tuning:{icon:'gauge',title:'Re-run tuning',body:'Re-applies the "Minimal footprint" profile to all nodes.',impactTitle:'Impact',impact:[{t:'~ sysctl on 5 nodes',st:'color:var(--wnt)'},{t:'~ kubelet restart, rolling',st:'color:var(--wnt)'}],confirm:'Re-run tuning'},
+      cancel:{icon:'alert',title:'Cancel deployment?',body:'Stopping mid-run can leave partial resources. You can retry from the current phase.',impactTitle:'Impact',impact:[{t:'! Bootstrap interrupted on cp-2',st:'color:var(--ert)'}],confirm:'Cancel deployment',danger:true},
+      retry:{icon:'rotate',title:'Retry from Bootstrap?',body:'Phases before Bootstrap are kept.',impactTitle:'',impact:[],confirm:'Retry'},
+      destroy:{icon:'alert',title:'Overwrite output folder?',body:'~/clusters/prod-homelab already contains files. Generating will replace them.',impactTitle:'Impact',impact:[{t:'~ 14 files replaced',st:'color:var(--wnt)'},{t:'- 2 files removed',st:'color:var(--ert)'}],confirm:'Overwrite',danger:true},
+      update:{icon:'download',title:'Update to v0.9.0',body:'A new version is ready.',impact:[],confirm:'Restart & update',isUpdate:true},
+      settings:{icon:'settings',title:'Settings',body:'',impact:[],confirm:'Save',isSettings:true,rows:[{k:'Language',v:'English'},{k:'Theme',v:'Follow OS'},{k:'Font size',v:'13 px'},{k:'Update channel',v:'Stable'},{k:'Check for updates automatically',v:'On'}]}};
+    let dlg=S.dlg?{...dlgs[S.dlg]}:{impact:[]};if(S.dlg){dlg.iconSt=`width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:${dlg.danger?'var(--ers)':'var(--prs)'};color:${dlg.danger?'var(--ert)':'var(--prt)'}`;dlg.btnSt=dlg.danger?btn('var(--er)','#fff','var(--er)'):btnP;dlg.cancel='Cancel';if(dlg.title==='Retry from Bootstrap?'||S.dlg==='retry')dlg.icon='arrow-right';if(!dlg.impactTitle)dlg.impactTitle='';}
+    // deploy
+    const dep=S.dep,ph=['Validate','Provision (tofu)','Bootstrap','CNI','Add-ons','GitOps','Smoke test'],dur=['4s','1m 52s','—','—','—','—','—'];
+    const phases=ph.map((n,i)=>{let k,t;if(dep==='success'){k='ok';t=['4s','1m 52s','2m 10s','48s','1m 20s','33s','12s'][i]}else if(i<2){k='ok';t=dur[i]}else if(i===2){k=dep==='fail'?'err':'run';t=dep==='fail'?'Failed · 38s':'Running · 38s'}else{k='lock';t='Pending'}
+      const bg={ok:'var(--oks)',err:'var(--ers)',run:'var(--prs)',lock:'var(--s2)'}[k],fg={ok:'var(--okt)',err:'var(--ert)',run:'var(--prt)',lock:'var(--mu)'}[k];return {name:n,text:t,icon:{ok:'circle-check',err:'circle-x',run:'loader',lock:'lock'}[k],style:`flex:1;min-width:0;padding:9px 10px;border-radius:9px;background:${bg};color:${fg};display:flex;flex-direction:column;gap:3px`}});
+    const L=(t,l,m)=>({t,lvl:l,msg:m});let logs=[L('10:02:01','info','validate: cluster.yaml ok'),L('10:02:05','ok','tofu apply: 6 added, 0 changed'),L('10:03:57','info','ansible: gathering facts on 5 hosts'),L('10:04:10','info','k3s: installing server on cp-1'),L('10:04:31','warn','cp-2: retrying SSH (attempt 2/3)')];
+    if(dep==='fail')logs.push(L('10:04:48','err','cp-2: ssh: connect to host 10.0.0.11 port 22: Connection refused'),L('10:04:48','err','phase bootstrap failed'));
+    else if(dep==='success')logs.push(L('10:06:20','ok','cilium: 5/5 agents ready'),L('10:08:02','ok','argocd: 12 apps synced'),L('10:08:14','ok','smoke test passed — nodes Ready 5/5'));
+    else logs.push(L('10:04:39','info','k3s: cp-2 joining via k8s.home.lab:6443'));
+    if(S.logErr)logs=logs.filter(l=>l.lvl==='err'||l.lvl==='warn');
+    const lc={info:'#D8DEF5',ok:'#4FD9C8',warn:'#F3B84B',err:'#FF8A8A'},tg={info:'INFO',ok:' OK ',warn:'WARN',err:'ERR '};
+    const logLines=logs.map(l=>({t:l.t,tag:tg[l.lvl]+(l.lvl==='err'?' ✕':l.lvl==='warn'?' ⚠':l.lvl==='ok'?' ✓':''),msg:l.msg,style:`color:${lc[l.lvl]}`}));
+    const tourS=[{},{},{l:200,t:52,w:200,h:560,cl:420,ct:120,title:'Your steps',body:'Finish each step in order. Done steps stay open; later ones unlock as you go.'}];
+    const tb=S.tourN%2?{l:200,t:52,w:200,h:560,cl:420,ct:120,title:'Your steps',body:'Finish each step in order. Done steps stay open; later ones unlock as you go.'}:{l:W-420,t:6,w:230,h:40,cl:W-420,ct:62,title:'Basic or Advanced',body:'Basic keeps safe defaults. Switch to Advanced for CIDRs, MTU and kube-proxy.'};
+    const demoChip=(l,sel,dis,rec)=>({label:l,rec,style:this.chipStyle(sel,dis,false)+';flex-direction:row;align-items:center;gap:6px'});
+    const sty=(k)=>this.badgeSt(k);
+    const tip=S.tip;
+    return {rootStyle,W,H,tabs,navItems,T,btnP,btnG,btnS,steps,
+      isWelcome:sc==='welcome',isHome:sc==='home',isWizard:isWiz,isDay2:sc==='day2',isDocs:sc==='docs',isStates:sc==='states',isComps:sc==='comps',hasShell:sc!=='welcome',
+      isConfigStep:cfg,isReview:isWiz&&S.step===11,isDeploy:isWiz&&S.step===12,showPanel:cfg,
+      themeIcon:dark?'sun':'moon',themeLabel:dark?'Light':'Dark',errLabel:S.err?'on':'off',cloudLabel:C?'Cloud':'Baremetal',isCloud:C,
+      basicSt:`padding:5px 12px;border-radius:6px;cursor:pointer;background:${S.mode==='basic'?'var(--sf)':'transparent'};color:${S.mode==='basic'?'var(--tx)':'var(--mu)'}`,advSt:`padding:5px 12px;border-radius:6px;cursor:pointer;background:${S.mode==='advanced'?'var(--sf)':'transparent'};color:${S.mode==='advanced'?'var(--tx)':'var(--mu)'}`,langLabel:S.lang==='en'?'EN':'ID',
+      groups:ct.groups,fields:ct.fields,toggles:ct.toggles,cur:ct.cur||{fields:[]},isTopo:isWiz&&S.step===4,
+      workerCount:S.workers,noWorkers:S.workers===0,inventory,topoErr,epBoxLabel:epL,epBoxStyle:'padding:7px 12px;border-radius:8px;background:var(--gds);color:var(--gdt);font:600 11.5px "JetBrains Mono",monospace;display:flex;gap:6px;align-items:center;border:1px solid var(--gd)',
+      cpNodes:[...Array(cp)].map((_,i)=>'cp-'+(i+1)),wkNodes:[...Array(S.workers)].map((_,i)=>'w-'+(i+1)),
+      help:this.help(),summary,est,
+      blocked,backSt:btn('transparent','var(--tx)','var(--bd)')+(S.step===1?';opacity:.45':''),nextSt:btn(dis?'var(--s2)':'var(--pr)',dis?'var(--mu)':'#fff',dis?'var(--bd)':'var(--pr)')+(dis?';cursor:not-allowed':''),nextLabel,
+      issues:[{lvl:'Error',icon:'circle-x',badge:sty('err'),msg:'Pod CIDR overlaps node subnet 10.0.0.0/24 — try 10.42.0.0/16',step:6},{lvl:'Warning',icon:'alert',badge:sty('warn'),msg:'RKE2 needs 4 GB per node; configured nodes have 2 GB — resize or choose k3s',step:3},{lvl:'Warning',icon:'alert',badge:sty('warn'),msg:'No backups enabled — add Velero in Features',step:8}],
+      tree:[['cluster.yaml','file',0,1],['tofu/','folder',0],['main.tf','file',1],['variables.tf','file',1],['ansible/','folder',0],['inventory.ini','file',1],['site.yml','file',1],['gitops/','folder',0],['apps/','folder',1]].map(x=>({name:x[0],icon:x[1],style:`padding-left:${x[2]*14}px;display:flex;gap:6px;align-items:center;${x[3]?'background:var(--prs);border-radius:5px;color:var(--prt)':''}`})),
+      yaml:`name: prod-homelab\ndistro: ${s.distro}\ntopology:\n  control_planes: ${cp}\n  workers: ${S.workers}\n  os: ubuntu-24.04\nendpoint:\n  mode: ${s.ep}\n  host: k8s.home.lab\nnetwork:\n  cni: ${s.cni}\n  pod_cidr: 10.42.0.0/16\ningress: ${s.ing}\ngitops: ${s.git}\ntuning: ${s.tune}`,
+      depStates:[['running','Running'],['fail','Failure'],['success','Success']].map(x=>({v:x[0],label:x[1],style:`padding:5px 11px;border-radius:6px;cursor:pointer;background:${dep===x[0]?'var(--sf)':'transparent'}`})),
+      phases,depFail:dep==='fail',depOk:dep==='success',logLines,errFilterSt:btnS+(S.logErr?';background:var(--prs);border-color:var(--pr)':''),errFilterIcon:S.logErr?'check':'alert',
+      okBadge:sty('ok'),stats:[{k:'Nodes',v:'5 / 5 Ready',sub:'3 control · 2 worker'},{k:'Endpoint',v:'k8s.home.lab',sub:'DNS · :6443'},{k:'Uptime',v:'14 days',sub:'Last tuned 3 days ago'}],
+      day2:[{icon:'server',label:'Upgrade to HA',sub:'Adds 2 control planes behind the same endpoint.',btn:'Upgrade…',d:'ha'},{icon:'plus',label:'Add workers',sub:'Join more nodes to the cluster.',btn:'Add…',d:'workers'},{icon:'gauge',label:'Re-run tuning',sub:'Re-apply the Minimal footprint profile.',btn:'Re-run…',d:'tuning'}],
+      homeActions:[['New cluster','plus','Start the 12-step wizard','wizard',1],['Open project','folder-open','Load a cluster.yaml','day2',0],['Start from preset','sparkles','Skip the basics','wizard',0],['Docs','book','Guides and reference','docs',0]].map((a,i)=>({label:a[0],icon:a[1],sub:a[2],s:a[3],style:`display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:12px;cursor:pointer;background:${i===0?'var(--pr)':'var(--sf)'};color:${i===0?'#fff':'var(--tx)'};border:1px solid ${i===0?'var(--pr)':'var(--bd)'}`})),
+      presets:[{icon:'laptop',name:'Dev local',spec:'k3s single · Flannel · Traefik',foot:'1 node · ~1 GB RAM'},{icon:'house',name:'Homelab baremetal',spec:'k3s HA · kube-vip · MetalLB · Cilium',foot:'3+ nodes · ~6 GB RAM'},{icon:'building',name:'Production on-prem',spec:'kubeadm/RKE2 3 CP · Cilium · Envoy · Argo CD',foot:'6+ nodes · ~24 GB RAM'},{icon:'cloud',name:'Cloud via OpenTofu',spec:'Hetzner / AWS …',foot:'~€40 / mo estimate'}],
+      recents:[{name:'prod-homelab',path:'~/clusters/prod-homelab',when:'2 hours ago',status:'Healthy',icon:'circle-check',badge:sty('ok')},{name:'dev-laptop',path:'~/clusters/dev-laptop',when:'Yesterday',status:'Draft',icon:'alert',badge:sty('warn')},{name:'hetzner-staging',path:'~/clusters/hetzner-staging',when:'3 weeks ago',status:'Deploy failed',icon:'circle-x',badge:sty('err')}],
+      prereqs:[['OpenTofu','1.8.2','ok'],['Ansible ≥ 2.16','2.14.3 (outdated)','warn'],['kubectl','1.31.4','ok'],['Helm','not found','err'],['Git','2.45.1','ok'],['SSH','OpenSSH 9.7','ok']].map(p=>({name:p[0],ver:p[1],status:{ok:'Found',warn:'Outdated',err:'Missing'}[p[2]],icon:{ok:'circle-check',warn:'alert',err:'circle-x'}[p[2]],badge:sty(p[2]),help:p[2]!=='ok',noHelp:p[2]==='ok'})),
+      toc:['Getting started','Networking','Control-plane endpoint','Ingress','GitOps','Day-2 operations'].map((t,i)=>({label:t,style:`padding:6px 9px;border-radius:7px;font-size:12.5px;${i===2?'background:var(--prs);color:var(--prt);font-weight:600':'color:var(--mu)'}`})),
+      dlgBtns:[['apply','Apply confirm'],['destroy','Overwrite confirm'],['cancel','Cancel confirm'],['update','Update dialog'],['settings','Settings']].map(x=>({d:x[0],label:x[1]})),
+      skel:['60%','100%','85%','40%'],toastsDemo:[{icon:'circle-check',msg:'Project generated in ~/clusters/prod-homelab',color:'color:var(--okt)'},{icon:'alert',msg:'Ansible 2.14 is older than 2.16',color:'color:var(--wnt)'},{icon:'circle-x',msg:'Could not reach github.com',color:'color:var(--ert)'}],
+      demoChips:[demoChip('Default',false,false),demoChip('Selected',true,false),demoChip('Recommended',false,false,true),demoChip('Disabled',false,true)],
+      demoSteps:[['Project','folder-open','circle-check','Done','ok'],['Distro','boxes','alert','Warning','warn'],['Topology','server','sparkles','In progress','cur'],['Network','network','circle-x','Error','err'],['Ingress','route','lock','Locked','lock']].map((x,i)=>({label:x[0],icon:x[1],sIcon:x[2],sText:x[3],style:`display:flex;gap:9px;align-items:center;padding:6px 8px;border-radius:8px;background:${x[4]==='cur'?'var(--prs)':'transparent'};color:${x[4]==='lock'?'var(--mu)':'var(--tx)'};outline:${x[4]==='cur'?'1.5px solid var(--pr)':'none'}`,badge:`width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:${x[4]==='cur'?'var(--pr)':'var(--s2)'};color:${x[4]==='cur'?'#fff':{ok:'var(--okt)',warn:'var(--wnt)',err:'var(--ert)',lock:'var(--mu)'}[x[4]]}`})),
+      badges:[['ok','circle-check','Valid'],['warn','alert','Warning'],['err','circle-x','Error'],['mute','lock','Locked'],['pr','loader','Running']].map(x=>({style:sty(x[0]),icon:x[1],label:x[2]})),
+      logDemo:[['info','10:04:10  INFO  k3s: installing server'],['ok','10:05:02   OK  ✓ nodes Ready'],['warn','10:05:30  WARN  ⚠ retrying SSH'],['err','10:05:41  ERR   ✕ connection refused']].map(x=>({style:`color:${lc[x[0]]}`,msg:x[1]})),
+      tokens:[['primary','pr','#3B5BDB / #4C6AE8'],['accent','ac','#12B8A6'],['highlight','gd','#FFD43B'],['success','okt','#0A7A6F / #4FD9C8'],['warning','wnt','#9A5B00 / #F3B84B'],['error','er','#D93636 / #E5484D'],['background','bg','#F5F6FB / #0E1220'],['surface','sf','#FFFFFF / #151A2C'],['surface-2','s2','#EDF0F7 / #1D2338'],['border','bd','#D9DEEB / #2A3150'],['text','tx','#1A2036 / #E8EBF5'],['muted','mu','#586078 / #A0A9C4']].map(x=>({n:x[0],v:`var(--${x[1]})`,hex:x[2]})),
+      hasTip:!!tip,tipText:tip&&tip.t,tipStyle:tip?`position:absolute;left:${Math.max(8,Math.min(W-290,tip.x))}px;top:${tip.y}px;max-width:280px;padding:7px 10px;border-radius:8px;background:var(--tx);color:var(--bg);font-size:12px;z-index:90;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.3)`:'',
+      hasToast:!!S.toast,toastText:S.toast,tour:S.tour,tourN:S.tourN,tourNext:S.tourN>=9?'Finish':'Next',tourBox:tb,hasDlg:!!S.dlg,dlg,
+      goScreen:e=>{const d=e.currentTarget.dataset;this.setState({screen:d.s,...(d.step?{step:+d.step,reached:Math.max(this.state.reached,+d.step===11||+d.step===12?12:this.state.reached)}:{}),tip:null})},
+      goStep:e=>{const i=+e.currentTarget.dataset.i;if(i<=this.state.reached)this.setState({step:i,screen:'wizard',focus:null,tip:null})},
+      setMode:e=>this.setState({mode:e.currentTarget.dataset.m}),
+      pick:e=>{const d=e.currentTarget.dataset;if(d.dis)return;this.setSel(d.k,d.v)},
+      tog:e=>{const k=e.currentTarget.dataset.k;this.setState(x=>({feat:{...x.feat,[k]:x.feat[k]?0:1}}))},
+      workers:e=>this.setState(x=>({workers:Math.max(0,Math.min(9,x.workers+ +e.currentTarget.dataset.d))})),
+      tipEnter:e=>{const el=e.currentTarget,d=el.dataset,fr=el.closest('[style*="overflow:hidden"]'),r=el.getBoundingClientRect(),root=el.ownerDocument.querySelector('[style*="box-shadow:0 12px 40px"]').getBoundingClientRect();this.setState(x=>({tip:d.tip?{t:d.tip,x:(r.left-root.left)/this.state.z,y:(r.bottom-root.top+6)/this.state.z}:null,focus:d.focus||x.focus}))},
+      tipLeave:()=>this.setState({tip:null}),
+      next:()=>{const S2=this.state;if(blocked||S2.step>=12)return;const n=S2.step+1;this.setState({step:n,reached:Math.max(S2.reached,n),focus:null})},
+      back:()=>this.setState(x=>({step:Math.max(1,x.step-1),focus:null})),
+      toggleTheme:()=>this.setState(x=>({theme:x.theme==='dark'?'light':'dark'})),toggleErr:()=>this.setState(x=>({err:!x.err})),toggleCloud:()=>this.setState(x=>({cloud:!x.cloud,target:undefined,sel:{...x.sel,target:!x.cloud?'cloud':'bare',ep:!x.cloud?'dns':x.sel.ep,lb:!x.cloud?'ccm':'metallb'}})),toggleLang:()=>this.setState(x=>({lang:x.lang==='en'?'id':'en'})),
+      startTour:()=>this.setState({tour:true,tourN:3,screen:'wizard',step:Math.max(this.state.step,1)}),startTourHome:()=>this.setState({tour:true,tourN:1,screen:'wizard',step:1}),
+      tourGo:e=>this.setState(x=>{const n=x.tourN+ +e.currentTarget.dataset.d;return n>9||n<1?{tour:false,screen:n>9?'home':x.screen}:{tourN:n}}),tourSkip:()=>this.setState({tour:false}),
+      setDep:e=>this.setState({dep:e.currentTarget.dataset.v}),toggleLogErr:()=>this.setState(x=>({logErr:!x.logErr})),
+      openDlg:e=>this.setState({dlg:e.currentTarget.dataset.d}),closeDlg:()=>this.setState({dlg:null}),stop:e=>e.stopPropagation(),confirmDlg:()=>this.setState({dlg:null,toast:'Done'}),
+      copy:e=>{const t=e.currentTarget.dataset.t||'Copied';this.setState({toast:t});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:null}),1800)}}}
+}
+</script>
+</body>
+</html>

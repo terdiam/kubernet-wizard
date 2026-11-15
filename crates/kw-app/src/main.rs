@@ -18,10 +18,10 @@ mod help;
 mod i18n;
 mod onboarding;
 mod settings;
+mod theme;
 mod update;
 mod wizard;
 
-use gpui_kit::component::Theme;
 use gpui_kit::*;
 
 fn main() {
@@ -45,6 +45,8 @@ fn main() {
 
     gpui_kit::application().with_assets(assets::KwAssets).run(|cx| {
         gpui_kit::init(cx);
+        let fonts = theme::load_fonts(cx);
+        cx.set_global(theme::Fonts(fonts));
         cx.set_global(settings::Ui { prefs, tour: None, startup_notice });
 
         let options = WindowOptions {
@@ -55,7 +57,8 @@ fn main() {
             ..Default::default()
         };
         let opened = gpui_kit::open_window(options, cx, |window, cx| {
-            Theme::sync_system_appearance(Some(window), cx);
+            theme::apply(Some(window), cx);
+            window.observe_window_appearance(|window, cx| theme::apply(Some(window), cx)).detach();
             cx.new(|cx| app::KwApp::new(window, cx))
         });
         if let Err(e) = opened {

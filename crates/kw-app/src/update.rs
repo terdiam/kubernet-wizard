@@ -11,7 +11,8 @@ use gpui_kit::component::button::{Button, ButtonVariants as _};
 use gpui_kit::component::progress::Progress as ProgressBar;
 use gpui_kit::component::switch::Switch;
 use gpui_kit::component::text::TextView;
-use gpui_kit::component::{ActiveTheme, Disableable, IconName, Selectable, Sizable, WindowExt, h_flex, v_flex};
+use gpui_kit::component::tooltip::Tooltip;
+use gpui_kit::component::{ActiveTheme, Disableable, Icon, IconName, Selectable, Sizable, WindowExt, h_flex, v_flex};
 use gpui_kit::prelude::FluentBuilder as _;
 use gpui_kit::*;
 use gpui_kit::base::StyledExt as _;
@@ -176,7 +177,7 @@ impl KwApp {
     }
 
     /// Header button reflecting update state (None when nothing to show).
-    pub(crate) fn update_button(&self, cx: &mut Context<Self>) -> Option<Button> {
+    pub(crate) fn update_button(&self, cx: &mut Context<Self>) -> Option<Stateful<Div>> {
         let lang = cx.global::<Ui>().prefs.lang;
         let (label, icon): (SharedString, IconName) = match &self.update {
             UpdateState::Available(u) => (format!("v{}", u.version).into(), IconName::ArrowDown),
@@ -184,14 +185,24 @@ impl KwApp {
             UpdateState::Ready(..) => (i18n::t(lang, K::UpdateRestart).into(), IconName::RefreshCw),
             _ => return None,
         };
+        let p = crate::theme::pal(cx);
         Some(
-            Button::new("update-indicator")
-                .small()
-                .primary()
-                .icon(icon)
-                .label(label)
-                .tooltip(i18n::t(lang, K::UpdateAvailable))
-                .on_click(cx.listener(|this, _, window, cx| this.open_update_dialog(window, cx))),
+            h_flex()
+                .id("update-indicator")
+                .gap_1()
+                .items_center()
+                .px(px(10.))
+                .py(px(4.))
+                .rounded_full()
+                .bg(p.gds)
+                .text_color(p.gdt)
+                .text_xs()
+                .font_semibold()
+                .cursor_pointer()
+                .child(Icon::new(icon).xsmall())
+                .child(label)
+                .tooltip(move |window, cx| Tooltip::new(i18n::t(lang, K::UpdateAvailable)).build(window, cx))
+                .on_click(cx.listener(|this, _: &ClickEvent, window, cx| this.open_update_dialog(window, cx))),
         )
     }
 

@@ -76,6 +76,14 @@ keys! {
     ErrorsOnly => "Hanya error", "Errors only";
     FixErrors => "Perbaiki error sebelum lanjut", "Fix errors before continuing";
     StepLocked => "Selesaikan langkah saat ini dulu", "Finish the current step first";
+    StDone => "Selesai", "Done";
+    StWarning => "Peringatan", "Warning";
+    StError => "Error", "Error";
+    StCurrent => "Sedang diisi", "In progress";
+    StLocked => "Terkunci", "Locked";
+    StTodo => "Belum diisi", "Not started";
+    Context => "KONTEKS", "CONTEXT";
+    HomeTitle => "Mau membangun apa hari ini?", "What are we building today?";
     SearchDocs => "Cari dokumentasi…", "Search docs…";
     ConfirmDeploy => "Jalankan di server sungguhan?", "Run against real servers?";
     ConfirmDeployBody => "Ansible akan mengubah konfigurasi node (paket, sysctl, layanan) dan memasang Kubernetes. Pastikan inventory benar.", "Ansible will change node configuration (packages, sysctl, services) and install Kubernetes. Make sure the inventory is correct.";
@@ -128,5 +136,35 @@ pub const fn step_title(lang: Lang, step: Step) -> &'static str {
         (Lang::En, Step::Tuning) => "Tuning",
         (Lang::En, Step::Review) => "Review",
         (Lang::En, Step::Deploy) => "Deploy",
+    }
+}
+
+/// One-line subtitle under each step title.
+pub const fn step_desc(lang: Lang, step: Step) -> &'static str {
+    match (lang, step) {
+        (Lang::Id, Step::Project) => "Beri nama cluster dan pilih lokasi file project.",
+        (Lang::Id, Step::Target) => "Di mana cluster akan berjalan?",
+        (Lang::Id, Step::Distro) => "Pilih distribusi Kubernetes.",
+        (Lang::Id, Step::Topology) => "Tentukan jumlah node dan perannya.",
+        (Lang::Id, Step::Endpoint) => "Alamat stabil untuk API dan untuk service.",
+        (Lang::Id, Step::Network) => "Pilih CNI; rentang alamat ada di mode Lanjutan.",
+        (Lang::Id, Step::Ingress) => "Cara trafik HTTP masuk ke cluster.",
+        (Lang::Id, Step::Features) => "Add-on opsional. Default aman sudah aktif.",
+        (Lang::Id, Step::GitOps) => "Biarkan repo Git mengelola cluster setelah bootstrap.",
+        (Lang::Id, Step::Tuning) => "Pilih profil resource.",
+        (Lang::Id, Step::Review) => "Periksa masalah dan semua file sebelum generate.",
+        (Lang::Id, Step::Deploy) => "Jalankan OpenTofu dan Ansible dengan log langsung.",
+        (Lang::En, Step::Project) => "Name your cluster and choose where its files are written.",
+        (Lang::En, Step::Target) => "Where will the cluster run?",
+        (Lang::En, Step::Distro) => "Pick the Kubernetes distribution.",
+        (Lang::En, Step::Topology) => "Decide how many nodes and what they run.",
+        (Lang::En, Step::Endpoint) => "A stable address for the API and for services.",
+        (Lang::En, Step::Network) => "Choose the CNI and, in Advanced, address ranges.",
+        (Lang::En, Step::Ingress) => "How HTTP traffic enters the cluster.",
+        (Lang::En, Step::Features) => "Optional add-ons. Safe defaults are on.",
+        (Lang::En, Step::GitOps) => "Let a Git repo drive the cluster after bootstrap.",
+        (Lang::En, Step::Tuning) => "Choose a resource profile.",
+        (Lang::En, Step::Review) => "Check issues and every generated file before you generate.",
+        (Lang::En, Step::Deploy) => "Run OpenTofu and Ansible with live logs.",
     }
 }
