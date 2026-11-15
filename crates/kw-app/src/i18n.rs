@@ -83,6 +83,9 @@ keys! {
     StLocked => "Terkunci", "Locked";
     StTodo => "Belum diisi", "Not started";
     Context => "KONTEKS", "CONTEXT";
+    ThemeSystem => "Tema: ikuti sistem", "Theme: follow system";
+    ThemeLight => "Tema: terang", "Theme: light";
+    ThemeDark => "Tema: gelap", "Theme: dark";
     HomeTitle => "Mau membangun apa hari ini?", "What are we building today?";
     SearchDocs => "Cari dokumentasi…", "Search docs…";
     ConfirmDeploy => "Jalankan di server sungguhan?", "Run against real servers?";

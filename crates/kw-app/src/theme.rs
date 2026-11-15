@@ -5,7 +5,9 @@
 // Hex literals mirror the design file 1:1.
 #![allow(clippy::unreadable_literal)]
 
-use gpui_kit::component::Theme;
+use gpui_kit::component::{Theme, ThemeMode};
+
+use crate::settings::{ThemeChoice, Ui};
 use gpui_kit::*;
 
 /// Design tokens. `*s` = soft background, `*t` = text on that background.
@@ -126,10 +128,16 @@ fn shade(c: Hsla, dl: f32) -> Hsla {
     Hsla { l: (c.l + dl).clamp(0., 1.), ..c }
 }
 
-/// Follows the OS appearance, then paints the brand palette over the kit theme.
+/// Applies the chosen scheme (or the OS appearance), then paints the brand
+/// palette over the kit theme.
 pub fn apply(window: Option<&mut Window>, cx: &mut App) {
     let fonts_ok = cx.try_global::<Fonts>().is_some_and(|f| f.0);
-    Theme::sync_system_appearance(window, cx);
+    let choice = cx.try_global::<Ui>().map_or(ThemeChoice::System, |ui| ui.prefs.theme);
+    match choice {
+        ThemeChoice::System => Theme::sync_system_appearance(window, cx),
+        ThemeChoice::Light => Theme::change(ThemeMode::Light, window, cx),
+        ThemeChoice::Dark => Theme::change(ThemeMode::Dark, window, cx),
+    }
     let dark = Theme::global(cx).is_dark();
     let p = Palette::new(dark);
     let white = c(0xFFFFFF);

@@ -6,8 +6,8 @@ use std::borrow::Cow;
 use gpui_kit::{AssetSource, Result, SharedString};
 
 gpui_kit::assets::icon_assets!(ExtraIcons, [
-    Boxes, Building2, Circle, ClipboardCheck, Cloud, ExternalLink, Gauge, GitBranch, House, Laptop, Lock, Network, Puzzle, Rocket,
-    Route, Server, Sparkles, WandSparkles, Waypoints,
+    Boxes, Building2, Circle, ClipboardCheck, Cloud, ExternalLink, Gauge, GitBranch, House, Laptop, Lock, Monitor, Moon, Network, Puzzle, Rocket,
+    Route, Server, Sparkles, Sun, WandSparkles, Waypoints,
 ]);
 
 /// Path of the app logo for `img(...)`.

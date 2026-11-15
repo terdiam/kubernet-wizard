@@ -19,6 +19,30 @@ pub struct Prefs {
     pub welcomed: bool,
     #[serde(default)]
     pub update: UpdatePrefs,
+    #[serde(default)]
+    pub theme: ThemeChoice,
+}
+
+/// App color scheme: follow the OS, or force light / dark.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ThemeChoice {
+    #[default]
+    System,
+    Light,
+    Dark,
+}
+
+impl ThemeChoice {
+    /// Header toggle order: System → Light → Dark → System.
+    #[inline]
+    pub const fn next(self) -> Self {
+        match self {
+            Self::System => Self::Light,
+            Self::Light => Self::Dark,
+            Self::Dark => Self::System,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -14,7 +14,7 @@ use crate::assets;
 use crate::docs::DocsView;
 use crate::i18n::{self, K};
 use crate::onboarding::{MAIN_TOUR, Screen};
-use crate::settings::{self, Ui};
+use crate::settings::{self, ThemeChoice, Ui};
 use crate::theme::pal;
 use crate::wizard::{Wizard, WizardEvent};
 
@@ -282,6 +282,23 @@ impl KwApp {
                     .on_click(cx.listener(|this, _, _, cx| this.update_prefs(cx, |p| p.lang = p.lang.toggle()))),
             )
             .children(self.update_button(cx))
+            .child({
+                let choice = cx.global::<Ui>().prefs.theme;
+                let (icon, tip) = match choice {
+                    ThemeChoice::System => (Lucide::Monitor, K::ThemeSystem),
+                    ThemeChoice::Light => (Lucide::Sun, K::ThemeLight),
+                    ThemeChoice::Dark => (Lucide::Moon, K::ThemeDark),
+                };
+                Button::new("theme")
+                    .ghost()
+                    .small()
+                    .icon(icon)
+                    .tooltip(i18n::t(lang, tip))
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.update_prefs(cx, |p| p.theme = p.theme.next());
+                        crate::theme::apply(Some(window), cx);
+                    }))
+            })
             .child(
                 Button::new("tour")
                     .ghost()
