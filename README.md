@@ -45,3 +45,7 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 cargo sweep --time 7   # prune old build artefacts
 ```
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
