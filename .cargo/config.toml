@@ -2,3 +2,11 @@
 # keep artefacts lean; clean old builds with: cargo sweep --time 7
 [term]
 color = "auto"
+
+# Link the MSVC C runtime statically so the app starts on Windows machines
+# without the Visual C++ Redistributable (VCRUNTIME140.dll).
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.aarch64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
