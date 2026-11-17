@@ -45,6 +45,8 @@ jobs:
             fontconfig-devel wayland-devel libxkbcommon-devel libxkbcommon-x11-devel \
             libX11-devel libxcb-devel openssl-devel libzstd-devel alsa-lib-devel vulkan-loader \
             pkgconf-pkg-config rpm-build dpkg binutils file
+          # rustup refuses a $HOME that differs from root's home (/github/home vs /root).
+          echo "HOME=/root" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@v7
 
