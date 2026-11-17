@@ -93,6 +93,7 @@ pub fn host_command(program: &str) -> Command {
     if let Some(path) = tools::path_env() {
         c.env("PATH", path);
     }
+    tools::no_window(&mut c);
     c
 }
 

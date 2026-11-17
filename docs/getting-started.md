@@ -18,14 +18,14 @@ kubernet-wizard membantu Anda mendesain cluster Kubernetes langkah demi langkah,
 | kubectl, Helm | Verifikasi & add-on |
 | SSH key | Akses root/sudo ke node |
 
-Windows: Ansible berjalan di **WSL2** (`wsl --install`, lalu `sudo apt install ansible` di dalam WSL).
+Windows: Ansible berjalan di **WSL2**. Tombol Install memasangnya otomatis (lihat tabel di bawah).
 
 Aplikasi memeriksa tool wajib setiap kali dibuka. Selama ada yang belum terpasang, layar **Lengkapi prasyarat** tidak bisa dilewati. Klik **Install** (atau **Install semua**) dan aplikasi memasangnya sendiri tanpa hak admin:
 
 | Tool | Cara pasang otomatis |
 |------|----------------------|
 | kubectl, Helm, OpenTofu | Binary resmi (dl.k8s.io, get.helm.sh, rilis GitHub OpenTofu), dicek SHA-256 |
-| Ansible | `ansible-core` di Python venv (butuh Python ≥ 3.10) |
+| Ansible | macOS/Linux: `ansible-core` di Python venv (butuh Python ≥ 3.10) · Windows: `ansible-core` dipasang sebagai root di distro WSL default; bila WSL belum ada, aplikasi memasang WSL + Ubuntu (minta izin admin), lalu restart Windows, buka Ubuntu sekali, dan klik Install lagi |
 | Git | macOS: dialog Command Line Tools · Windows: `winget` · Linux: `pkexec` + apt/dnf |
 | OpenSSH | Linux: `pkexec` + apt/dnf · macOS & Windows: sudah bawaan / Optional features |
 

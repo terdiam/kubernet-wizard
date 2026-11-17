@@ -106,6 +106,8 @@ pub fn path_env() -> Option<std::ffi::OsString> {
 pub enum Method {
     Download,
     PythonVenv,
+    /// Windows: `ansible-core` installed as root inside the default WSL distro.
+    Wsl,
     System,
     /// No automatic path; the hint explains what to do.
     Manual(&'static str),
@@ -114,9 +116,7 @@ pub enum Method {
 pub fn method(tool: &Tool) -> Method {
     match tool.program {
         "kubectl" | "helm" | "tofu" => Method::Download,
-        "ansible-playbook" if cfg!(windows) => {
-            Method::Manual("Ansible runs in WSL: run `wsl --install`, then `sudo apt install ansible` inside WSL")
-        }
+        "ansible-playbook" if cfg!(windows) => Method::Wsl,
         "ansible-playbook" => Method::PythonVenv,
         "ssh" if cfg!(target_os = "macos") => Method::Manual("OpenSSH ships with macOS"),
         "ssh" if cfg!(windows) => Method::Manual("Settings → System → Optional features → OpenSSH Client"),
@@ -133,6 +133,7 @@ pub fn install(tool: &Tool, mut log: impl FnMut(&str)) -> Result<(), InstallErro
         (Method::Download, "helm") => helm(&bin, &mut log),
         (Method::Download, _) => tofu(&bin, &mut log),
         (Method::PythonVenv, _) => ansible(&bin, &mut log),
+        (Method::Wsl, _) => ansible_wsl(&mut log),
         (Method::System, program) => system(program, &mut log),
         (Method::Manual(hint), _) => Err(InstallError::Manual(hint)),
     }
@@ -321,10 +322,22 @@ fn extract(archive: &Path, inner: &str, out: &Path) -> Result<(), InstallError> 
     Err(missing())
 }
 
+/// No console window flashes up when the GUI app starts a console program.
+#[inline]
+pub(crate) fn no_window(cmd: &mut Command) -> &mut Command {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt as _;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+    cmd
+}
+
 /// Runs a command, streaming its output lines to `log`.
 fn run(cmd: &mut Command, log: &mut impl FnMut(&str)) -> Result<(), InstallError> {
     log(&format!("$ {cmd:?}"));
-    let mut child = cmd
+    let mut child = no_window(cmd)
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -392,6 +405,41 @@ fn ansible(bin: &Path, log: &mut impl FnMut(&str)) -> Result<(), InstallError> {
         std::os::unix::fs::symlink(venv.join("bin").join(prog), &link).map_err(io_err(&link))?;
     }
     log(&format!("Installed ansible-core → {}", venv.display()));
+    Ok(())
+}
+
+/// Script run as root in WSL: no sudo password needed.
+const WSL_ANSIBLE: &str = "set -e; export DEBIAN_FRONTEND=noninteractive; \
+apt-get update; apt-get install -y python3-venv; \
+python3 -m venv --clear /opt/kubernet-wizard/ansible; \
+/opt/kubernet-wizard/ansible/bin/pip install --disable-pip-version-check ansible-core; \
+for p in ansible ansible-playbook ansible-galaxy; do ln -sf /opt/kubernet-wizard/ansible/bin/$p /usr/local/bin/$p; done";
+
+/// Windows: Ansible inside WSL. Installs WSL + Ubuntu first when no distro
+/// answers (admin prompt; Windows usually needs a restart afterwards).
+fn ansible_wsl(log: &mut impl FnMut(&str)) -> Result<(), InstallError> {
+    let distro_ready = no_window(Command::new("wsl").args(["-u", "root", "--", "true"]))
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .is_ok_and(|s| s.success());
+    if !distro_ready {
+        log("No WSL Linux distribution found. Installing WSL + Ubuntu; Windows asks for admin rights.");
+        run(
+            Command::new("powershell").args([
+                "-NoProfile",
+                "-Command",
+                "Start-Process wsl.exe -ArgumentList '--install','-d','Ubuntu','--no-launch' -Verb RunAs -Wait",
+            ]),
+            log,
+        )?;
+        return Err(InstallError::Failed(
+            "WSL is installed. Restart Windows, open Ubuntu once from the Start menu to finish its setup, then press Install again".into(),
+        ));
+    }
+    run(Command::new("wsl").args(["-u", "root", "--", "sh", "-c", WSL_ANSIBLE]), log)?;
+    log("Installed ansible-core in WSL → /usr/local/bin");
     Ok(())
 }
 
